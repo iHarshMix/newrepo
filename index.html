@@ -40,7 +40,7 @@
     /*let listofQuestions = generateEasyQuestions();
     let myJson = JSON.stringify(listofQuestions);
     alert(myJson);*/
-    socket.emit("joinRoom");
+    socket.emit("joinRoom", "username");
 
     socket.on('disconnect', ()=>{
         if (myJoinedRoom === -1){
@@ -60,8 +60,8 @@
   });
 
   socket.on('room_joined', (room)=>{
-    myJoinedRoom = room;
-    alert(`connected to user ${room}`);
+    myJoinedRoom = room.room;
+    alert(`connected to user ${room.room}`);
   });
 
 

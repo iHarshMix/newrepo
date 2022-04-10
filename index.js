@@ -16,7 +16,7 @@ let usersInRoom = [];
 
 io.on('connection', (socket) => {
 
-    socket.on("joinRoom", ()=> { let user = { "socket" : socket, "id": socket.id };
+    socket.on("joinRoom", (username)=> { let user = { "socket" : socket, "id": socket.id };
 
     usersInRoom.push(user);
 
@@ -29,8 +29,8 @@ io.on('connection', (socket) => {
         socket2.join(roomName);
 
         users.set(roomName, usersInRoom);
-        socket1.emit('room_joined', { room: roomName} );
-        socket2.emit('room_joined', {room: roomName});
+        socket1.emit('room_joined', { room : roomName} );
+        socket2.emit('room_joined', { room : roomName});
 
         let listofquestions = JSON.stringify(generateEasyQuestions());
         socket1.emit('questions', { questions: listofquestions} );
