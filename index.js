@@ -29,12 +29,12 @@ io.on('connection', (socket) => {
         socket2.join(roomName);
 
         users.set(roomName, usersInRoom);
-        socket1.emit('room_joined', roomName);
-        socket2.emit('room_joined', roomName);
+        socket1.emit('room_joined', { "room": roomName} );
+        socket2.emit('room_joined', {"room": roomName});
 
         let listofquestions = JSON.stringify(generateEasyQuestions());
-        socket1.emit('questions', listofquestions);
-        socket2.emit('questions', listofquestions);
+        socket1.emit('questions', { "questions": listofquestions} );
+        socket2.emit('questions', { "questions": listofquestions} );
 
         usersInRoom = [];
         roomName++;
