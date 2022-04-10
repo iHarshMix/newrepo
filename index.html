@@ -37,10 +37,10 @@
 
   socket.on("connect", ()=> {
     alert(`connected with id ${socket.id}`);
-    let listofQuestions = generateEasyQuestions();
+    /*let listofQuestions = generateEasyQuestions();
     let myJson = JSON.stringify(listofQuestions);
-    alert(myJson);
-   // socket.emit("joinRoom");
+    alert(myJson);*/
+    socket.emit("joinRoom");
 
     socket.on('disconnect', ()=>{
         if (myJoinedRoom === -1){
@@ -51,6 +51,7 @@
         }
         
     });
+
 
   });
 
