@@ -25,7 +25,7 @@
     <script src="/socket.io/socket.io.js"></script>
 <script>
   var socket = io();
-  var myJoinedRoom = -1;
+  var myJoinedRoom = "";
 
 
   socket.on("message", msg =>{
@@ -37,33 +37,15 @@
 
   socket.on("connect", ()=> {
     alert(`connected with id ${socket.id}`);
-    /*let listofQuestions = generateEasyQuestions();
-    let myJson = JSON.stringify(listofQuestions);
-    alert(myJson);*/
+
     socket.emit("joinRoom", "username");
 
-    socket.on('disconnect', ()=>{
-        if (myJoinedRoom === -1){
-            console.log(`user disconnected before joining room`);
-        }
-        else{
-            socket.emit('remove_user', myJoinedRoom);    
-        }
-        
-    });
-
-    socket.on('questions', (ques)=>{
-        alert(`questions reviced: ${ques} `);
-    });
-
-
   });
 
-  socket.on('room_joined', (room)=>{
-    myJoinedRoom = room.room;
-    alert(`connected to user ${room.room}`);
-  });
+  socket.on('questions', (ques)=>{ alert(`questions reviced: ${ques} `); });
 
+  socket.on('room_joined', (room)=>{ myJoinedRoom = room.room; alert(`connected to user ${room.room}`); });
+  
 
   form.addEventListener('submit', function(e) {
     e.preventDefault();
