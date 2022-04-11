@@ -1,15 +1,14 @@
 import path from 'path'
-const __dirname = path.resolve();
 import express from 'express'
-const app = express();
 import http from 'http'
-const server = http.createServer(app);
-import { Server } from "socket.io";
-const io = new Server(server);
-const port = process.env.PORT || 3001
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDoc, doc, updateDoc } from "firebase/firestore";
-
+import { Server } from "socket.io";
+const __dirname = path.resolve();
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+const port = process.env.PORT || 3001
 
 const firebaseConfig = {
   apiKey: "AIzaSyDu2afD9seUM-Cigy0WHhEVjgGPcqMoUZI",
@@ -21,22 +20,12 @@ const firebaseConfig = {
   appId: "1:576042213006:web:7253371bb48cf3f5f8b3df"
 };
 
-
 const app2 = initializeApp(firebaseConfig);
 const db = getFirestore(app2);
-
-const snap = await doc(db, 'Users', '101411107148464225590');
-await updateDoc(snap, {
-  userCoins: 1203
-});
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
-
-
-
-
 
 let users = new Map();
 let usersInRoom = [];
@@ -106,7 +95,7 @@ server.listen(port, () => {console.log('listening on *:', port);});
 
 
 //<-------------------------------------Functions are defined here--------------------------------------->
-function isEnoughUsers() { usersInRoom.length === 2; }
+function isEnoughUsers() { return usersInRoom.length === 2; }
 function generateEasyQuestions() {let questions = {}; 
     for (let sno = 1; sno <= 5; sno++){
         let num1 = Math.floor((Math.random() * 100) + 1);
@@ -132,6 +121,11 @@ function createUuid() { var dt = new Date().getTime();
     });
     return uuid; }
 
+async function updateScore(userId){
+    const snap = await doc(db, 'Users', userId);
+    await updateDoc(snap, {
+    userCoins: 20
+    });
+}
 
 
-//<---------------------------------Garbage--------------------------------->//
