@@ -1,3 +1,5 @@
+import path from 'path'
+const __dirname = path.resolve();
 import express from 'express'
 const app = express();
 import http from 'http'
@@ -25,7 +27,7 @@ const db = getFirestore(app2);
 
 const snap = await doc(db, 'Users', '101411107148464225590');
 await updateDoc(snap, {
-  userCoins: 82
+  userCoins: 1203
 });
 
 app.get('/', (req, res) => {
