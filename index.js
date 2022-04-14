@@ -58,12 +58,12 @@ io.on('connection', (socket) => {
 
         users.set(roomName, usersInRoom);
         socket1.emit('room_joined', { room : roomName, username : usersInRoom[1].userName} );
-        socket2.emit('room_joined', { room : roomName, username : usersInRoom[0].userName});
+        socket2.emit('room_joined', { room : roomName, username : usersInRoom[0].userName} );
 
         if (usersInRoom[0].roomType === "easy"){
             let listofquestions = JSON.stringify(generateEasyQuestions());
-            socket1.emit('questions', { questions: listofquestions);
-            socket2.emit('questions', { questions: listofquestions, username : usersInRoom[0].userName} );
+            socket1.emit('questions', { questions: listofquestions} );
+            socket2.emit('questions', { questions: listofquestions} );
             usersInRoom = [];
         }else{
             let listofquestions = JSON.stringify(generateHardQuestions());
