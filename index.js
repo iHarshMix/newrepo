@@ -50,6 +50,7 @@ io.on('connection', (socket) => {
 
         let socket1 = usersInRoom[0].socket;
         let socket2 = usersInRoom[1].socket;
+        console.log(usersInRoom[0].userTickets, usersInRoom[0].userName, usersInRoom[0].userCoin);
         let roomName = createUuid();
 
         socket1.join(roomName);
@@ -61,8 +62,8 @@ io.on('connection', (socket) => {
 
         if (usersInRoom[0].roomType === "easy"){
             let listofquestions = JSON.stringify(generateEasyQuestions());
-            socket1.emit('questions', { questions: listofquestions} );
-            socket2.emit('questions', { questions: listofquestions} );
+            socket1.emit('questions', { questions: listofquestions, username : usersInRoom[1].userName} );
+            socket2.emit('questions', { questions: listofquestions, username : usersInRoom[0].userName} );
             usersInRoom = [];
         }else{
             let listofquestions = JSON.stringify(generateHardQuestions());
