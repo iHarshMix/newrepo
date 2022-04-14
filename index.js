@@ -27,13 +27,23 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
+
 let users = new Map();
+let userResult = new Map();
 let usersInRoom = [];
 
 io.on('connection', (socket) => {
 
-    socket.on("joinRoom", (username)=> { let user = { "socket" : socket, "id": socket.id };
+    socket.on("joinRoom", (usertype)=> { 
+        let user = { 
+            "socket" : socket, 
+            "id": socket.id, 
+            "roomType": usertype.type, 
+            "userName": usertype.username,
+            "userCoin": usertype.usercoins,
+            "userTickets": usertype.usertickets, };
 
+    //console.log(type.type)
     usersInRoom.push(user);
 
     if (isEnoughUsers()){
@@ -49,14 +59,20 @@ io.on('connection', (socket) => {
         socket1.emit('room_joined', { room : roomName} );
         socket2.emit('room_joined', { room : roomName});
 
-        let listofquestions = JSON.stringify(generateEasyQuestions());
-        socket1.emit('questions', { questions: listofquestions} );
-        socket2.emit('questions', { questions: listofquestions} );
-
-        usersInRoom = [];
-  
+        if (usersInRoom[0].roomType === "easy"){
+            let listofquestions = JSON.stringify(generateEasyQuestions());
+            socket1.emit('questions', { questions: listofquestions} );
+            socket2.emit('questions', { questions: listofquestions} );
+            usersInRoom = [];
+        }else{
+            let listofquestions = JSON.stringify(generateHardQuestions());
+            socket1.emit('questions', { questions: listofquestions} );
+            socket2.emit('questions', { questions: listofquestions} );
+            usersInRoom = [];
+        }
+        
     } 
-    else { socket.emit("message", "waiting for other user"); } });
+    else { socket.emit("message", { msg : "waiting for other user" }); } });
 
     socket.on('message_other', (msg, room) => { io.to(room).emit("message", msg); });
 
@@ -88,6 +104,49 @@ io.on('connection', (socket) => {
      });
 
     socket.on('disconnect', ()=>{ console.log(`user disconnected`); });
+
+    socket.on('update_score', (report, room, google_id )=> {
+     
+        let score = 0;
+        for (let i = 0 ; i < report.length; i++){
+            if (report[i].userans === report[i].correctans){
+                score++;
+            }
+        }
+
+        if (userResult.has(room)){
+               
+            let obj = {};
+            obj["report"] = report;
+            obj["googleid"] = google_id;
+            obj["score"] = score;
+            let old = Array.from(userResult.get(room));
+            old.push(obj);
+            userResult.set(room, old);
+
+        }else{
+
+            let obj = {};
+            obj["report"] = report;
+            obj["googleid"] = google_id;
+            obj["score"] = score;
+            userResult.set(room, [obj] ); 
+        }
+
+        console.log(userResult);
+
+    });
+
+
+    socket.on('get_result', (room) =>{
+        if (userResult.has(room)){
+            let old = Array.from(userResult.get(room));
+            console.log(old[0].googleid);
+            console.log(old[0].report);
+        }else{
+            console.log(`something is not right -> get_result`);
+        }
+    });
   
 });
 
@@ -112,6 +171,10 @@ function generateEasyQuestions() {let questions = {};
             questions[sno.toString()] = question;
         }
         return questions;}
+
+function generateHardQuestions(){
+    //doNothing
+}
 function removeUser(room) { users.delete(room);}
 function createUuid() { var dt = new Date().getTime();
     var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -121,7 +184,7 @@ function createUuid() { var dt = new Date().getTime();
     });
     return uuid; }
 
-async function updateScore(userId){
+async function updateScore(userId, currCoins, currTickets){
     const snap = await doc(db, 'Users', userId);
     await updateDoc(snap, {
     userCoins: 20

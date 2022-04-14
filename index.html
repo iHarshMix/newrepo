@@ -38,13 +38,30 @@
   socket.on("connect", ()=> {
     alert(`connected with id ${socket.id}`);
 
-    socket.emit("joinRoom", "username");
+  /*let reportJson = 
+  [
+    { "userans" : 23, "correctans" : 23 },
+    { "userans" : 2, "correctans" : 54 },
+    { "userans" : 235, "correctans" : 253 },
+    { "userans" : 232, "correctans" : 232 },
+    { "userans" : 213, "correctans" : 231 },
+  ];
+
+
+  let nn = Math.floor((Math.random() * 100) + 1);
+  socket.emit('update_score', reportJson, "2451", nn.toString());*/
+
+  //socket.emit('get_result', "2451");
+
+    socket.emit("joinRoom", { "type" : "easy", "username" : "Robo", "usercoin": 32, "usertickets" : 12});
 
   });
 
   socket.on('questions', (ques)=>{ alert(`questions reviced: ${ques} `); });
 
-  socket.on('room_joined', (room)=>{ myJoinedRoom = room.room; alert(`connected to user ${room.room}`); });
+  socket.on('room_joined', (room)=>{ myJoinedRoom = room.room; alert(`connected to user ${room.room}`);
+     
+   });
   
 
   form.addEventListener('submit', function(e) {
