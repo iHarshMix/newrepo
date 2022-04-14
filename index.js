@@ -43,6 +43,8 @@ io.on('connection', (socket) => {
             "userCoin": usertype.usercoins,
             "userTickets": usertype.usertickets, };
 
+    console.log(user.userTickets, user.userName, user.userCoin);
+
     //console.log(type.type)
     usersInRoom.push(user);
 
@@ -50,7 +52,6 @@ io.on('connection', (socket) => {
 
         let socket1 = usersInRoom[0].socket;
         let socket2 = usersInRoom[1].socket;
-        console.log(usersInRoom[0].userTickets, usersInRoom[0].userName, usersInRoom[0].userCoin);
         let roomName = createUuid();
 
         socket1.join(roomName);
