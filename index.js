@@ -43,7 +43,7 @@ io.on('connection', (socket) => {
             "userCoin": usertype.usercoins,
             "userTickets": usertype.usertickets, };
 
-    console.log(user.userTickets, user.userName, user.userCoin);
+    
 
     //console.log(type.type)
     usersInRoom.push(user);
@@ -143,8 +143,10 @@ io.on('connection', (socket) => {
     socket.on('get_result', (room) =>{
         if (userResult.has(room)){
             let old = Array.from(userResult.get(room));
-            console.log(old[0].googleid);
             console.log(old[0].report);
+            console.log(old[1].report);
+            socket.emit("user_results", {"firstReport" : old[0].report, "secondReport" : old[1].report});
+            
         }else{
             console.log(`something is not right -> get_result`);
         }
