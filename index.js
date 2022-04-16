@@ -135,14 +135,15 @@ io.on('connection', (socket) => {
             userResult.set(room, [obj] ); 
         }
 
+        socket.emit('result_generated');
         console.log(userResult);
 
     });
 
 
     socket.on('get_result', (room) =>{
-        if (userResult.has(room)){
-            let old = Array.from(userResult.get(room));
+        if (userResult.has(room.room)){
+            let old = Array.from(userResult.get(room.room));
             console.log(old[0].report);
             console.log(old[1].report);
             socket.emit("user_results", {"firstReport" : old[0].report, "secondReport" : old[1].report});
