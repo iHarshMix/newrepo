@@ -144,7 +144,7 @@ io.on('connection', (socket) => {
     socket.on('get_result', (room) =>{
         if (userResult.has(room.room)){
             let old = Array.from(userResult.get(room.room));
-            //console.log(old[0].report);
+            console.log(old[0].report);
             //console.log(old[1].report);
             socket.emit("user_results", {"firstReport" : old[0].report});
             
