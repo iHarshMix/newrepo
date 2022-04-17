@@ -145,16 +145,15 @@ io.on('connection', (socket) => {
             let old = Array.from(userResult.get(room.room));
             //console.log(old[0].report);
             //console.log(old[1].report);
-            if (!old[0].report){
-                socket.emit("user_results", {"firstReport" : old[0].report});
+            if (!old[0].report && !old[1].report){
+                socket.emit("user_results", {"firstReport" : old[0].report, "secondReport" : old[1].report});
             }else{
-                socket.emit("user_results", {"error" : "other user left"} );
-            }
-
-            if (!old[1].report){
-                socket.emit("user_results", {"secondReport" : old[1].report});
-            }else{
-                socket.emit("user_results", {"error" : "other user left"} );
+                if (!old[0].report){
+                    socket.emit("user_results", {"firstReport" : old[0].report, "error" : "other user left"});
+                }
+                else{
+                    socket.emit("user_results", {"firstReport" : old[1].report, "error" : "other user left"});
+                }
             }
             
             userResult.delete(room.room);
