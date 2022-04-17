@@ -1,4 +1,4 @@
 git add .
-git commit -m "server"
-git push origin main
+git commit -m "update"
+git push heroku
 exit

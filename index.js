@@ -117,7 +117,6 @@ io.on('connection', (socket) => {
         }
 
         if (userResult.has(room)){
-               
             let obj = {};
             obj["report"] = report;
             obj["googleid"] = google_id;
@@ -146,8 +145,19 @@ io.on('connection', (socket) => {
             let old = Array.from(userResult.get(room.room));
             //console.log(old[0].report);
             //console.log(old[1].report);
-            socket.emit("user_results", {"firstReport" : old[0].report});
+            if (!old[0].report){
+                socket.emit("user_results", {"firstReport" : old[0].report});
+            }else{
+                socket.emit("user_results", {"error" : "other user left"} );
+            }
+
+            if (!old[1].report){
+                socket.emit("user_results", {"secondReport" : old[1].report});
+            }else{
+                socket.emit("user_results", {"error" : "other user left"} );
+            }
             
+            userResult.delete(room.room);
         }else{
             console.log(`something is not right -> get_result`);
         }
@@ -178,7 +188,7 @@ function generateEasyQuestions() {let questions = {};
         return questions;}
 
 function generateHardQuestions(){
-    //doNothing
+    //let questions = {};
 }
 function removeUser(room) { users.delete(room);}
 function createUuid() { var dt = new Date().getTime();
