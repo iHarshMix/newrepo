@@ -126,12 +126,12 @@ io.on('connection', (socket) => {
             obj["report"] = report;
             obj["googleid"] = google_id;
             obj["score"] = score;
-            obj["socketid"] = socket.id
+            obj["socketid"] = socket.id;
             let old = userResult.get(room);
 
-            console.log("--------------------third start----------------------") ;
-            console.log(old);
-            console.log("--------------------third end----------------------") ;
+            console.log("--------------------second start----------------------") ;
+            console.log(old.socket.id);
+            console.log("--------------------second end----------------------") ;
 
             //let skt = old.socketid;
             
@@ -142,7 +142,7 @@ io.on('connection', (socket) => {
             userResult.set(room, arr);
        
             //skt.emit('result_generated');
-            socket.emit('result_generated');
+            //socket.emit('result_generated');
             console.log("--------------------third start----------------------") ;
             console.log(userResult);
             console.log("--------------------third end----------------------") ;
@@ -151,7 +151,7 @@ io.on('connection', (socket) => {
             obj["report"] = report;
             obj["googleid"] = google_id;
             obj["score"] = score;
-            obj["socketid"] = socket.id
+            obj["socketid"] = socket.id;
             userResult.set(room, obj);
             console.log("--------------------first start----------------------") ;
             console.log(userResult);
