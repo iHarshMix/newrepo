@@ -129,14 +129,14 @@ io.on('connection', (socket) => {
             obj["socketid"] = socket.id
             let old = Array.from(userResult.get(room));
             console.log(`old is ${old}`)
+
             //let skt = old[0].socketid;
             old.push(obj);
-
+            userResult.set(room, old);
             let bsd = Array.from(userResult.get(room));
             let skt = bsd[0].socketid
             //console.log(skt)
-            userResult.set(room, old);
-      
+        
             socket.emit('result_generated');
             console.log(userResult)
 
