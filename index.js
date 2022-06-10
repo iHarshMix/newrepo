@@ -107,8 +107,12 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', ()=>{ console.log(`user disconnected`); });
 
-    socket.on('update_score', (report, room, google_id )=> {
+    socket.on('update_score', (info )=> {
      
+        let report = info.report
+        let room = info.room
+        let google_id = info.google_id
+
         let score = 0;
         for (let i = 0 ; i < report.length; i++){
             if (report[i].userans === report[i].correctans){
@@ -135,6 +139,7 @@ io.on('connection', (socket) => {
         }
 
         socket.emit('result_generated');
+        console.log(`report ${report}`)
         console.log(userResult);
 
     });
