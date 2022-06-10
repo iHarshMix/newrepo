@@ -130,7 +130,7 @@ io.on('connection', (socket) => {
             let old = userResult.get(room);
 
             console.log("--------------------second start----------------------") ;
-            console.log(old.socket.id);
+            console.log(old.socketid);
             console.log("--------------------second end----------------------") ;
 
             //let skt = old.socketid;
