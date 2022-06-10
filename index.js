@@ -128,15 +128,17 @@ io.on('connection', (socket) => {
             obj["score"] = score;
             obj["socketid"] = socket.id
             let old = Array.from(userResult.get(room));
-            console.log(`old is ${old}`)
-
+            
             //let skt = old[0].socketid;
             old.push(obj);
             userResult.set(room, old);
             let bsd = Array.from(userResult.get(room));
-            let skt = bsd[0].socketid
+            let skt = bsd[0].socketid;
+
+            console.log(`old is ${skt}`);
             //console.log(skt)
         
+            skt.emit('result_generated');
             socket.emit('result_generated');
             console.log(userResult)
 
