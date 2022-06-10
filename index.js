@@ -133,7 +133,7 @@ io.on('connection', (socket) => {
             old.push(obj);
 
             let bsd = Array.from(userResult.get(room));
-            let skt = old[0].socketid
+            let skt = bsd[0].socketid
             //console.log(skt)
             userResult.set(room, old);
       
