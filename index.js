@@ -129,7 +129,9 @@ io.on('connection', (socket) => {
             obj["socketid"] = socket.id
             let old = userResult.get(room);
 
-            console.log(`2 - ${old}`);
+            console.log("--------------------third start----------------------") ;
+            console.log(old);
+            console.log("--------------------third end----------------------") ;
 
             //let skt = old.socketid;
             
@@ -141,16 +143,19 @@ io.on('connection', (socket) => {
        
             //skt.emit('result_generated');
             socket.emit('result_generated');
-            console.log(userResult)
-
+            console.log("--------------------third start----------------------") ;
+            console.log(userResult);
+            console.log("--------------------third end----------------------") ;
         }else{
             let obj = {};
             obj["report"] = report;
             obj["googleid"] = google_id;
             obj["score"] = score;
             obj["socketid"] = socket.id
-            userResult.set(room, obj); 
-            console.log(`1 - ${userResult}`);
+            userResult.set(room, obj);
+            console.log("--------------------first start----------------------") ;
+            console.log(userResult);
+            console.log("--------------------first end----------------------") ;
         }
 
         //console.log(`report ${report}`)
