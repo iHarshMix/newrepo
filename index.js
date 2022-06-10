@@ -127,10 +127,12 @@ io.on('connection', (socket) => {
             obj["googleid"] = google_id;
             obj["score"] = score;
             let old = Array.from(userResult.get(room));
+            console.log(old)
             old.push(obj);
+            console.log(`wha the hell ${old}`)
             userResult.set(room, old);
-            let skt = old[0].socketid;
-            skt.emit('result_generated');
+            //let skt = old[0].socketid;
+            //skt.emit('result_generated');
             socket.emit('result_generated');
             console.log(userResult)
 
