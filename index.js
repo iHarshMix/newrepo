@@ -128,7 +128,10 @@ io.on('connection', (socket) => {
             obj["score"] = score;
             obj["socketid"] = socket.id
             let old = userResult.get(room);
-            let skt = old.socketid;
+
+            console.log(`2 - ${old}`);
+
+            //let skt = old.socketid;
             
             let arr = [];
             arr.push(old);
@@ -136,7 +139,7 @@ io.on('connection', (socket) => {
 
             userResult.set(room, arr);
        
-            skt.emit('result_generated');
+            //skt.emit('result_generated');
             socket.emit('result_generated');
             console.log(userResult)
 
@@ -147,6 +150,7 @@ io.on('connection', (socket) => {
             obj["score"] = score;
             obj["socketid"] = socket.id
             userResult.set(room, obj); 
+            console.log(`1 - ${userResult}`);
         }
 
         //console.log(`report ${report}`)
