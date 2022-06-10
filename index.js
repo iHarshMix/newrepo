@@ -127,8 +127,8 @@ io.on('connection', (socket) => {
             obj["googleid"] = google_id;
             obj["score"] = score;
             obj["socketid"] = socket.id
-            let oldid = userResult.get(room);
-            let skt = oldid.socketid;
+            let old = userResult.get(room);
+            let skt = old.socketid;
             
             let arr = [];
             arr.push(old);
