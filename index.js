@@ -129,9 +129,9 @@ io.on('connection', (socket) => {
             obj["socketid"] = socket;
             let old = userResult.get(room);
 
-            //console.log("--------------------second start----------------------") ;
+            console.log("--------------------second start----------------------") ;
             let skt = old.socketid;
-            //console.log("--------------------second end----------------------") ;
+            console.log("--------------------second end----------------------") ;
 
             
             let arr = [];
@@ -152,9 +152,9 @@ io.on('connection', (socket) => {
             obj["score"] = score;
             obj["socketid"] = socket;
             userResult.set(room, obj);
-            //console.log("--------------------first start----------------------") ;
+            console.log("--------------------first start----------------------") ;
             //console.log(userResult);
-            //console.log("--------------------first end----------------------") ;
+            console.log("--------------------first end----------------------") ;
         }
 
         //console.log(`report ${report}`)
