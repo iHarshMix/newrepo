@@ -24,18 +24,17 @@ const app2 = initializeApp(firebaseConfig);
 const db = getFirestore(app2);
 
 
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
+
 const docRef = await addDoc(collection(db, "report"), {
         first : report,
         second : score,
         third : 1815
 
     });
-
-
-
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
 
 
 let users = new Map();
