@@ -126,7 +126,7 @@ io.on('connection', (socket) => {
             }
         }
 
-        sendDeatilsToFirebase(room, report, score, timeforsubmission, google_id);
+        sendDeatilsToFirebase(room, report, score.toString(), timeforsubmission, google_id);
 
         
     });
