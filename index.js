@@ -30,10 +30,7 @@ app.get('/', (req, res) => {
 
 
 const docRef = await addDoc(collection(db, "report"), {
-        first : report,
-        second : score,
-        third : 1815
-
+    
     });
 
 
