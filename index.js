@@ -29,13 +29,6 @@ app.get('/', (req, res) => {
 });
 
 
-let jv = {  
-    "firstValue" : 56,
-    "secondValue": 78,
-    "solution": 799
-    };
-
-const docRef = await addDoc(collection(db, "report"), jv);
 
 
 let users = new Map();
@@ -133,7 +126,7 @@ io.on('connection', (socket) => {
             }
         }
 
-        sendDeatilsToFirebase(room, report, score, timeforsubmission);
+        sendDeatilsToFirebase(room, report, score, timeforsubmission, google_id);
 
         
     });
@@ -204,14 +197,16 @@ async function updateScore(userId, currCoins, currTickets){
     });
 }
 
-async function sendDeatilsToFirebase(room, report, score, timetaken){
+async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
     
-    const docRef = await addDoc(collection(db, room), {
-        first : report,
-        second : score,
-        third : 1815
+    let jv = {
+        "report" : report,
+        "score" : score,
+        "time" : timetaken,
+        "google_id" : googleid
+    };
 
-    });
+    const docRef = await addDoc(collection(db, room), jv);
 }
 
 
