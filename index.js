@@ -29,9 +29,13 @@ app.get('/', (req, res) => {
 });
 
 
-const docRef = await addDoc(collection(db, "report"), {
-    
-    });
+let jv = {  
+    "firstValue" : 56,
+    "secondValue": 78,
+    "solution": 799
+    };
+
+const docRef = await addDoc(collection(db, "report"), jv);
 
 
 let users = new Map();
