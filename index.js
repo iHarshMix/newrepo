@@ -113,11 +113,11 @@ io.on('connection', (socket) => {
 
     socket.on('update_score', (info)=> {
      
-        let report = info.report
-        let room = info.room
-        let google_id = info.google_id
-        let timeforsubmission = info.time
-        let userOfflineScore = info.score
+        let report = JSON.stringify(info.report);
+        let room = info.room;
+        let google_id = info.google_id;
+        let timeforsubmission = info.time;
+        let userOfflineScore = info.score;
 
         let score = 0;
         for (let i = 0 ; i < report.length; i++){
@@ -126,7 +126,7 @@ io.on('connection', (socket) => {
             }
         }
 
-        sendDeatilsToFirebase(room, report.toString(), score.toString(), timeforsubmission, google_id);
+        sendDeatilsToFirebase(room, report, score.toString(), timeforsubmission, google_id);
 
         
     });
