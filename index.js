@@ -146,14 +146,27 @@ io.on('connection', (socket) => {
             userResult.set(room, arr);
             let userArray = Array.from(users.get(room));
             
-            console.log(skt);
-            console.log(skt.id);
-            //scoring user
-            //if (skt === userArray[0].socketid)
             let user1ticket = userArray[0].usertickets;
             let user2ticket = userArray[1].usertickets;
             let user1coin = userArray[0].userCoin;
             let user2coin = userArray[1].userCoin;
+
+
+            if (skt.id === userArray[0].id){
+                if (old.score > score){
+                    updateScore(old.googleid, user1coin, user1ticket);
+                }else{
+                    updateScore(google_id, user2coin, user2ticket);
+                }
+            }else{
+                if (old.score > score){
+                    updateScore(google_id, user2coin, user2ticket);
+                    
+                }else{
+                    updateScore(old.googleid, user1coin, user1ticket);
+                }
+            }
+            
 
             userResult.delete(room);
        
