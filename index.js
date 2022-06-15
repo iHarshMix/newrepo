@@ -222,8 +222,12 @@ function createUuid() { var dt = new Date().getTime();
 
 async function updateScore(userId, currCoins, currTickets){
     const snap = await doc(db, 'Users', userId);
+    let updatedCoins = parseInt(currCoins) + 5; 
+    let updatedTickets = parseInt(currTickets) - 1; 
+
     await updateDoc(snap, {
-    userCoins: 20
+    userCoins: updatedCoins,
+    userTickets : updatedTickets
     });
 }
 
