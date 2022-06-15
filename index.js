@@ -222,8 +222,8 @@ function createUuid() { var dt = new Date().getTime();
 
 async function updateWinner(userId, currCoins, currTickets){
     const snap = await doc(db, 'Users', userId);
-    let updatedCoins = parseInt(currCoins) + 5; 
-    let updatedTickets = parseInt(currTickets) - 1; 
+    let updatedCoins = (parseInt(currCoins) + 5).toString(); 
+    let updatedTickets = (parseInt(currTickets) - 1).toString(); 
 
     await updateDoc(snap, {
     userCoins: updatedCoins,
@@ -234,8 +234,8 @@ async function updateWinner(userId, currCoins, currTickets){
 
 async function updateLoser(userId, currCoins, currTickets){
     const snap = await doc(db, 'Users', userId);
-    let updatedCoins = parseInt(currCoins); 
-    let updatedTickets = parseInt(currTickets) - 1; 
+    let updatedCoins = (parseInt(currCoins) + 0).toString(); 
+    let updatedTickets = (parseInt(currTickets) - 1).toString(); 
 
     await updateDoc(snap, {
     userCoins: updatedCoins,
