@@ -143,8 +143,7 @@ io.on('connection', (socket) => {
             userResult.set(room, arr);
             let reportString = JSON.stringify(report);
 
-            updateResult(room);
-
+    
             sendDeatilsToFirebase(room, reportString, score, timeforsubmission, google_id);
 
 
