@@ -122,7 +122,7 @@ io.on('connection', (socket) => {
         let temp_score = 0;
         for (let i = 0 ; i < report.length; i++){
             console.log("-------------Incorrect ans branch-------------");
-            console.log(` userans - ${report[i].userans}`);
+            console.log(` userans - ${report[i].yourans}`);
             console.log(` correctans - ${report[i].correctans}`);
         }
 
