@@ -126,36 +126,49 @@ io.on('connection', (socket) => {
             }
         }
 
-        let reportString = JSON.stringify(report);
+        if (userResult.has(room)){
+            let obj = {};
+            obj["report"] = report;
+            obj["googleid"] = google_id;
+            obj["score"] = score;
+            obj["socketid"] = socket;
+            let old = userResult.get(room);
 
-        sendDeatilsToFirebase(room, reportString, temp_score, timeforsubmission, google_id);
+            let skt = old.socketid;
+            
+            let arr = [];
+            arr.push(old);
+            arr.push(obj);
 
+            userResult.set(room, arr);
+            let reportString = JSON.stringify(report);
+
+            updateResult(room);
+
+            sendDeatilsToFirebase(room, reportString, temp_score, timeforsubmission, google_id);
+
+
+            let userArray = Array.from(users.get(room));
+            console.log(`user array is`);
+            console.log(userArray);
+
+            userResult.delete(room);
+       
+        } else{
+
+            let obj = {};
+            obj["report"] = report;
+            obj["googleid"] = google_id;
+            obj["score"] = score;
+            obj["socketid"] = socket;
+            userResult.set(room, obj);
+            //console.log("--------------------first start----------------------") ;
+            //console.log(userResult);
+            //console.log("--------------------first end----------------------") ;
+        }
         
     });
 
-        //console.log what the hell is wrong 
-    socket.on('get_result', (room) =>{
-        if (userResult.has(room.room)){
-            let old = Array.from(userResult.get(room.room));
-            //console.log(old[0].report);
-            //console.log(old[1].report);
-            if (!old[0].report && !old[1].report){
-                socket.emit("user_results", {"firstReport" : old[0].report, "secondReport" : old[1].report});
-            }else{
-                if (!old[0].report){
-                    socket.emit("user_results", {"firstReport" : old[0].report, "error" : "other user left"});
-                }
-                else{
-                    socket.emit("user_results", {"firstReport" : old[1].report, "error" : "other user left"});
-                }
-            }
-            
-            userResult.delete(room.room);
-        }else{
-            console.log(`waiting for other user's report -> get_result`);
-        }
-    });
-  
 });
 
 server.listen(port, () => {console.log('listening on *:', port);});
@@ -180,9 +193,7 @@ function generateEasyQuestions() {let questions = {};
         }
         return questions;}
 
-function generateHardQuestions(){
-    //let questions = {};
-}
+
 function removeUser(room) { users.delete(room);}
 function createUuid() { var dt = new Date().getTime();
     var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -212,3 +223,8 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
 }
 
 
+
+    //console.log what the hell is wrong 
+    /*socket.on('get_result', (room) =>{
+        
+    });*/
