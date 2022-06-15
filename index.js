@@ -113,7 +113,7 @@ io.on('connection', (socket) => {
 
     socket.on('update_score', (info)=> {
      
-        let report = JSON.stringify(info.report);
+        let report = info.report;
         let room = info.room;
         let google_id = info.google_id;
         let timeforsubmission = info.time;
@@ -130,7 +130,9 @@ io.on('connection', (socket) => {
             }
         }
 
-        sendDeatilsToFirebase(room, report, temp_score, timeforsubmission, google_id);
+        let reportString = JSON.stringify(report);
+
+        sendDeatilsToFirebase(room, reportString, temp_score, timeforsubmission, google_id);
 
         
     });
