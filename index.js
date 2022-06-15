@@ -205,67 +205,10 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
         "report" : report,
         "score" : score,
         "time" : timetaken,
-        "google_id" : googleid
+        "googleId" : googleid
     };
 
     const docRef = await addDoc(collection(db, room), jv);
 }
 
 
-
-
-/*socket.on('update_score', (info)=> {
-     
-        let report = info.report
-        let room = info.room
-        let google_id = info.google_id
-        let timeforsubmission = info.time
-        let userOfflineScore = info.score
-
-        let score = 0;
-        for (let i = 0 ; i < report.length; i++){
-            if (report[i].userans === report[i].correctans){
-                score++;
-            }
-        }
-
-        if (userResult.has(room)){
-            let obj = {};
-            obj["report"] = report;
-            obj["googleid"] = google_id;
-            obj["score"] = score;
-            obj["socketid"] = socket;
-            let old = userResult.get(room);
-
-            console.log("--------------------second start----------------------") ;
-            let skt = old.socketid;
-            console.log("--------------------second end----------------------") ;
-
-            
-            let arr = [];
-            arr.push(old);
-            arr.push(obj);
-
-            userResult.set(room, arr);
-       
-            skt.emit('result_generated');
-            socket.emit('result_generated');
-            //console.log("--------------------third start----------------------") ;
-            //console.log(userResult);
-            //console.log("--------------------third end----------------------") ;
-        }else{
-            let obj = {};
-            obj["report"] = report;
-            obj["googleid"] = google_id;
-            obj["score"] = score;
-            obj["socketid"] = socket;
-            userResult.set(room, obj);
-            console.log("--------------------first start----------------------") ;
-            //console.log(userResult);
-            console.log("--------------------first end----------------------") ;
-        }
-
-        //console.log(`report ${report}`)
-        //console.log(userResult);
-
-    });*/
