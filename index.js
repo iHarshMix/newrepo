@@ -154,16 +154,11 @@ io.on('connection', (socket) => {
 
             if (skt.id === userArray[0].id){
                 if (old.score > score){
-                    updateWinner(old.googleid, user1coin, user1ticket);
-                }else{
-                    updateLoser(google_id, user2coin, user2ticket);
+                    updateWinner(old.googleid, user1coin, user1ticket, google_id);
                 }
             }else{
                 if (old.score > score){
-                    updateWinner(google_id, user2coin, user2ticket);
-                    
-                }else{
-                    updateLoser(old.googleid, user1coin, user1ticket);
+                    updateWinner(google_id, user2coin, user2ticket, old.googleid);
                 }
             }
             
@@ -220,26 +215,17 @@ function createUuid() { var dt = new Date().getTime();
     });
     return uuid; }
 
-async function updateWinner(userId, currCoins, currTickets){
-    const snap = await doc(db, 'Users', userId);
-    let updatedCoins = (parseInt(currCoins) + 5).toString(); 
-    let updatedTickets = (parseInt(currTickets) - 1).toString(); 
+async function updateWinner(userId, currCoins, currTickets, userId2){
+    const snap1 = await doc(db, 'Users', userId);
+    const snap2 = await doc(db, 'Users', userId2);
 
-    await updateDoc(snap, {
-    userCoins: updatedCoins,
-    userTickets : updatedTickets
+    await updateDoc(snap1, {
+    userCoins: currCoins + 5,
+    userTickets : currTickets - 1
     });
-}
 
-
-async function updateLoser(userId, currCoins, currTickets){
-    const snap = await doc(db, 'Users', userId);
-    let updatedCoins = (parseInt(currCoins) + 0).toString(); 
-    let updatedTickets = (parseInt(currTickets) - 1).toString(); 
-
-    await updateDoc(snap, {
-    userCoins: updatedCoins,
-    userTickets : updatedTickets
+    await updateDoc(snap2, {
+    userTickets : currTickets - 1;
     });
 }
 
