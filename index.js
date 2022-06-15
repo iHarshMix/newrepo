@@ -123,10 +123,12 @@ io.on('connection', (socket) => {
         for (let i = 0 ; i < report.length; i++){
             if (report[i].userans === report[i].correctans){
                 temp_score++;
+                console.log("-------------correct ans branch-------------");
                 console.log(temp_score);
             }else{
-                console.log(report[i].userans);
-                console.log(report[i].correctans);
+                console.log("-------------Incorrect ans branch-------------");
+                console.log(` userans - ${report[i].userans}`);
+               console.log(` correctans - ${report[i].correctans}`);
             }
         }
 
