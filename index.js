@@ -140,6 +140,7 @@ io.on('connection', (socket) => {
             arr.push(old);
             arr.push(obj);
 
+            console.log("--------------------second start----------------------") ;
             userResult.set(room, arr);
             let reportString = JSON.stringify(report);
 
@@ -161,7 +162,7 @@ io.on('connection', (socket) => {
             obj["score"] = score;
             obj["socketid"] = socket;
             userResult.set(room, obj);
-            //console.log("--------------------first start----------------------") ;
+            console.log("--------------------first start----------------------") ;
             //console.log(userResult);
             //console.log("--------------------first end----------------------") ;
         }
