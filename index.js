@@ -146,24 +146,24 @@ io.on('connection', (socket) => {
             userResult.set(room, arr);
             let userArray = Array.from(users.get(room));
             
-            let user1ticket = userArray[0].usertickets;
-            let user2ticket = userArray[1].usertickets;
+            let user1ticket = userArray[0].userTickets;
+            let user2ticket = userArray[1].userTickets;
             let user1coin = userArray[0].userCoin;
             let user2coin = userArray[1].userCoin;
 
 
             if (skt.id === userArray[0].id){
                 if (old.score > score){
-                    updateScore(old.googleid, user1coin, user1ticket);
+                    updateWinner(old.googleid, user1coin, user1ticket);
                 }else{
-                    updateScore(google_id, user2coin, user2ticket);
+                    updateLoser(google_id, user2coin, user2ticket);
                 }
             }else{
                 if (old.score > score){
-                    updateScore(google_id, user2coin, user2ticket);
+                    updateWinner(google_id, user2coin, user2ticket);
                     
                 }else{
-                    updateScore(old.googleid, user1coin, user1ticket);
+                    updateLoser(old.googleid, user1coin, user1ticket);
                 }
             }
             
@@ -220,9 +220,21 @@ function createUuid() { var dt = new Date().getTime();
     });
     return uuid; }
 
-async function updateScore(userId, currCoins, currTickets){
+async function updateWinner(userId, currCoins, currTickets){
     const snap = await doc(db, 'Users', userId);
     let updatedCoins = parseInt(currCoins) + 5; 
+    let updatedTickets = parseInt(currTickets) - 1; 
+
+    await updateDoc(snap, {
+    userCoins: updatedCoins,
+    userTickets : updatedTickets
+    });
+}
+
+
+async function updateLoser(userId, currCoins, currTickets){
+    const snap = await doc(db, 'Users', userId);
+    let updatedCoins = parseInt(currCoins); 
     let updatedTickets = parseInt(currTickets) - 1; 
 
     await updateDoc(snap, {
