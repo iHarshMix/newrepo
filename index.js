@@ -119,14 +119,18 @@ io.on('connection', (socket) => {
         let timeforsubmission = info.time;
         let userOfflineScore = info.score;
 
-        let score = 0;
+        let temp_score = 0;
         for (let i = 0 ; i < report.length; i++){
             if (report[i].userans === report[i].correctans){
-                score++;
+                temp_score++;
+                console.log(temp_score);
+            }else{
+                console.log(report[i].userans);
+                console.log(report[i].correctans);
             }
         }
 
-        sendDeatilsToFirebase(room, report, score, timeforsubmission, google_id);
+        sendDeatilsToFirebase(room, report, temp_score, timeforsubmission, google_id);
 
         
     });
