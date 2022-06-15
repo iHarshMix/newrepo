@@ -225,7 +225,7 @@ async function updateWinner(userId, currCoins, currTickets, userId2){
     });
 
     await updateDoc(snap2, {
-    userTickets : currTickets - 1;
+    userTickets : currTickets - 1
     });
 }
 
