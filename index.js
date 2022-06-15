@@ -126,6 +126,9 @@ io.on('connection', (socket) => {
             }
         }
 
+        let reportString = JSON.stringify(report);
+        sendDeatilsToFirebase(room, reportString, score, timeforsubmission, google_id);
+
         if (userResult.has(room)){
             let obj = {};
             obj["report"] = report;
@@ -140,17 +143,17 @@ io.on('connection', (socket) => {
             arr.push(old);
             arr.push(obj);
 
-            console.log("--------------------second start----------------------") ;
             userResult.set(room, arr);
-            let reportString = JSON.stringify(report);
-
-    
-            sendDeatilsToFirebase(room, reportString, score, timeforsubmission, google_id);
-
-
             let userArray = Array.from(users.get(room));
-            console.log(`user array is`);
-            console.log(userArray);
+            
+            console.log(skt);
+            console.log(skt.id);
+            //scoring user
+            //if (skt === userArray[0].socketid)
+            let user1ticket = userArray[0].usertickets;
+            let user2ticket = userArray[1].usertickets;
+            let user1coin = userArray[0].userCoin;
+            let user2coin = userArray[1].userCoin;
 
             userResult.delete(room);
        
@@ -162,7 +165,8 @@ io.on('connection', (socket) => {
             obj["score"] = score;
             obj["socketid"] = socket;
             userResult.set(room, obj);
-            console.log("--------------------first start----------------------") ;
+
+    
             //console.log(userResult);
             //console.log("--------------------first end----------------------") ;
         }
