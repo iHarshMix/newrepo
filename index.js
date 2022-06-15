@@ -121,9 +121,9 @@ io.on('connection', (socket) => {
 
         let temp_score = 0;
         for (let i = 0 ; i < report.length; i++){
-            console.log("-------------Incorrect ans branch-------------");
-            console.log(` userans - ${report[i].yourans}`);
-            console.log(` correctans - ${report[i].correctans}`);
+            if (report[i].yourans === report[i].correctans){
+                temp_score++;
+            }
         }
 
         let reportString = JSON.stringify(report);
