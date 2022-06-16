@@ -155,15 +155,22 @@ io.on('connection', (socket) => {
             if (skt.id === userArray[0].id){
                 if (old.score > score){
                     updateWinner(old.googleid, user1coin, user1ticket, google_id);
+                }else{
+                    updateWinner(google_id, user2coin, user2ticket, old.googleid);
                 }
             }else{
                 if (old.score > score){
                     updateWinner(google_id, user2coin, user2ticket, old.googleid);
+                }else{
+                    updateWinner(old.googleid, user1coin, user1ticket, google_id);
                 }
             }
             
-
+            skt.disconnect();
+            socket.disconnect();
+            console.log(`both sockets disconnected`);
             userResult.delete(room);
+            users.delete(room);
        
         } else{
 
@@ -238,7 +245,7 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
         "googleId" : googleid
     };
 
-    const docRef = await addDoc(collection(db, room), jv);
+    const docRef = await addDoc(collection(db, "resultData", room), jv);
 }
 
 
