@@ -30,12 +30,12 @@ app.get('/', (req, res) => {
 
 
 
-let jv = {
+/*let jv = {
     "first" : "robo",
     "second" : "vaibhv"
 };
 const docRef = await addDoc(collection(db, "resultData"), jv);
-
+*/
 
 let users = new Map();
 let userResult = new Map();
