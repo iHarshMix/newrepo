@@ -154,14 +154,18 @@ io.on('connection', (socket) => {
             if (skt.id === userArray[0].id){
                 if (old.score > score){
                     updateWinner(old.googleid, user1coin, user1ticket, google_id);
+                    const dd = await addDoc(collection(db, "Tip", "history", old.googleid));
                 }else{
                     updateWinner(google_id, user2coin, user2ticket, old.googleid);
+                    const dd = await addDoc(collection(db, "Tip", "history", google_id));
                 }
             }else{
                 if (old.score > score){
                     updateWinner(google_id, user2coin, user2ticket, old.googleid);
+                    const dd = await addDoc(collection(db, "Tip", "history", google_id));
                 }else{
                     updateWinner(old.googleid, user1coin, user1ticket, google_id);
+                    const dd = await addDoc(collection(db, "Tip", "history", old.googleid));
                 }
             }
             
@@ -246,7 +250,7 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
         "googleId" : googleid
     };
 
-    const docRef = await setDoc(doc(db, "resultData", room), jv);
+    const docRef = await addDoc(collection(db, room), jv);
 }
 
 
