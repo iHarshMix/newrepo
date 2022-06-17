@@ -223,8 +223,8 @@ function createUuid() { var dt = new Date().getTime();
     return uuid; }
 
 async function updateWinner(userId, currCoins, currTickets, userId2){
-    const snap1 = await doc(db, 'Users', userId);
-    const snap2 = await doc(db, 'Users', userId2);
+    const snap1 = await doc(db, 'Users', userId, "report");
+    const snap2 = await doc(db, 'Users', userId2, "report");
 
     await updateDoc(snap1, {
     userCoins: currCoins + 5,
