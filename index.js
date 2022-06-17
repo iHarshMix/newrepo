@@ -274,6 +274,7 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
 }
 
 
+//waht happen
 
     //console.log what the hell is wrong 
     /*socket.on('get_result', (room) =>{
