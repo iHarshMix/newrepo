@@ -34,7 +34,7 @@ let jv = {
     "first" : "robo",
     "second" : "vaibhv"
 };
-const docRef = await addDoc(collection(db, "resultData", "helloBaby"), jv);
+const docRef = await addDoc(collection(db, "resultData"), jv);
 
 
 let users = new Map();
