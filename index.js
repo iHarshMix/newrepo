@@ -261,12 +261,13 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
 
 async function updateRecord(gameStatus, userId){
 
+    var d = new Date();
     let recordData = {
         status : gameStatus, 
-        timestamp : firebase.firestore.FieldValue.serverTimestamp()
+        timestamp : d
     };
     const docRef = await addDoc(collection(db, "Tip", "history", userId), recordData);
-}
+};
 
 //waht happen
 
