@@ -2,7 +2,7 @@ import path from 'path'
 import express from 'express'
 import http from 'http'
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDoc, doc, updateDoc, addDoc } from "firebase/firestore";
+import { getFirestore, collection, getDoc, doc, updateDoc, addDoc, setDoc } from "firebase/firestore";
 import { Server } from "socket.io";
 const __dirname = path.resolve();
 const app = express();
@@ -29,13 +29,6 @@ app.get('/', (req, res) => {
 });
 
 
-
-/*let jv = {
-    "first" : "robo",
-    "second" : "vaibhv"
-};
-const docRef = await addDoc(collection(db, "resultData"), jv);
-*/
 
 let users = new Map();
 let userResult = new Map();
@@ -253,7 +246,7 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
         "googleId" : googleid
     };
 
-    const docRef = await addDoc(collection(db, "resultData", room), jv);
+    const docRef = await setDoc(doc(db, "resultData", room), jv);
 }
 
 
