@@ -30,6 +30,12 @@ app.get('/', (req, res) => {
 
 
 
+let jv = {
+    "first" : "robo",
+    "second" : "vaibhv"
+};
+const docRef = await addDoc(collection(db, "resultData", "helloBaby"), jv);
+
 
 let users = new Map();
 let userResult = new Map();
@@ -222,9 +228,11 @@ function createUuid() { var dt = new Date().getTime();
     });
     return uuid; }
 
+
+
 async function updateWinner(userId, currCoins, currTickets, userId2){
-    const snap1 = await doc(db, 'Users', userId, "report");
-    const snap2 = await doc(db, 'Users', userId2, "report");
+    const snap1 = await doc(db, userId);
+    const snap2 = await doc(db, userId2);
 
     await updateDoc(snap1, {
     userCoins: currCoins + 5,
