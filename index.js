@@ -28,6 +28,7 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
+//updateRecord("WIN", "101411107148464225590");
 
 
 let users = new Map();
