@@ -154,38 +154,24 @@ io.on('connection', (socket) => {
             if (skt.id === userArray[0].id){
                 if (old.score > score){
                     updateWinner(old.googleid, user1coin, user1ticket, google_id);
-
-                    let recordData = {
-                        status : "WIN",
-                        timestamp : firebase.firestore.FieldValue.serverTimestamp()
-                    };
-
-                    const dd = await addDoc(collection(db, "Tip", "history", old.googleid), recordData);
+                    updateRecord("WIN", old.googleid);
+               
                 }else{
 
-                     let recordData = {
-                        status : "LOSE",
-                        timestamp : firebase.firestore.FieldValue.serverTimestamp()
-                    };
-
+                    updateRecord("LOSE", google_id);
                     updateWinner(google_id, user2coin, user2ticket, old.googleid);
-                    const dd = await addDoc(collection(db, "Tip", "history", google_id), recordData);
+                    
                 }
             }else{
                 if (old.score > score){
-                     let recordData = {
-                        status : "LOSE",
-                        timestamp : firebase.firestore.FieldValue.serverTimestamp()
-                    };
+
+                    updateRecord("LOSE", google_id);
                     updateWinner(google_id, user2coin, user2ticket, old.googleid);
-                    const dd = await addDoc(collection(db, "Tip", "history", google_id), recordData);
+                    
                 }else{
-                    let recordData = {
-                        status : "WIN",
-                        timestamp : firebase.firestore.FieldValue.serverTimestamp()
-                    };
+                   updateRecord("WIN", old.googleid);
                     updateWinner(old.googleid, user1coin, user1ticket, google_id);
-                    const dd = await addDoc(collection(db, "Tip", "history", old.googleid), recordData);
+          
                 }
             }
             
@@ -273,6 +259,14 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
     const docRef = await addDoc(collection(db, room), jv);
 }
 
+async function updateRecord(gameStatus, userId){
+
+    let recordData = {
+        status : gameStatus, 
+        timestamp : firebase.firestore.FieldValue.serverTimestamp()
+    };
+    const docRef = await addDoc(collection(db, "Tip", "history", userId), recordData);
+}
 
 //waht happen
 
