@@ -129,7 +129,7 @@ io.on('connection', (socket) => {
         let reportString = JSON.stringify(report);
         sendDeatilsToFirebase(room, reportString, score, timeforsubmission, google_id);
 
-        /*if (userResult.has(room)){
+        if (userResult.has(room)){
             let obj = {};
             obj["report"] = report;
             obj["googleid"] = google_id;
@@ -154,14 +154,20 @@ io.on('connection', (socket) => {
 
             if (skt.id === userArray[0].id){
                 if (old.score > score){
-                    updateWinner(old.googleid, user1coin, user1ticket, google_id);
-                    //updateRecord("WIN", old.googleid);
+
+                    let tmp = updateWinner(old.googleid, user1coin, user1ticket, google_id);
+                    tmp.then(
+                        console.log("await run")
+                        updateRecord("WIN", old.googleid)
+                        );
                
                 }else{
 
-                    //updateRecord("LOSE", google_id);
-                    updateWinner(google_id, user2coin, user2ticket, old.googleid);
-                    
+                    let tmp = updateWinner(google_id, user2coin, user2ticket, old.googleid);
+                    tmp.then(
+                        console.log("await run")
+                        updateRecord("LOSE", google_id)
+                        );    
                 }
             }else{
                 if (old.score > score){
@@ -194,7 +200,7 @@ io.on('connection', (socket) => {
     
             //console.log(userResult);
             //console.log("--------------------first end----------------------") ;
-        }*/
+        }
         
     });
 
