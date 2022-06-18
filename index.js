@@ -129,7 +129,7 @@ io.on('connection', (socket) => {
         let reportString = JSON.stringify(report);
         sendDeatilsToFirebase(room, reportString, score, timeforsubmission, google_id);
 
-        if (userResult.has(room)){
+        /*if (userResult.has(room)){
             let obj = {};
             obj["report"] = report;
             obj["googleid"] = google_id;
@@ -194,7 +194,7 @@ io.on('connection', (socket) => {
     
             //console.log(userResult);
             //console.log("--------------------first end----------------------") ;
-        }
+        }*/
         
     });
 
