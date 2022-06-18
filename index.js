@@ -153,7 +153,7 @@ io.on('connection', (socket) => {
 
             console.log("--------------------Second end----------------------") ;
 
-            /*if (skt.id === userArray[0].id){
+            if (skt.id === userArray[0].id){
                 if (old.score > score){
                     
                     updateWinner(old.googleid, user1coin, user1ticket, google_id);
@@ -176,12 +176,12 @@ io.on('connection', (socket) => {
           
                 }
             }
-            */
-            skt.disconnect();
+            
+          /*  skt.disconnect();
             socket.disconnect();
             console.log(`both sockets disconnected`);
             userResult.delete(room);
-            users.delete(room);
+            users.delete(room);*/
        
         } else{
 
