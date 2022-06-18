@@ -151,23 +151,18 @@ io.on('connection', (socket) => {
             let user1coin = userArray[0].userCoin;
             let user2coin = userArray[1].userCoin;
 
+            console.log("--------------------Second end----------------------") ;
 
             if (skt.id === userArray[0].id){
                 if (old.score > score){
-
-                    let tmp = updateWinner(old.googleid, user1coin, user1ticket, google_id);
-                    tmp.then(
-                        console.log("await run")
-                        //updateRecord("WIN", old.googleid)
-                        );
+                    
+                    updateWinner(old.googleid, user1coin, user1ticket, google_id);
+                    
                
                 }else{
 
-                    let tmp = updateWinner(google_id, user2coin, user2ticket, old.googleid);
-                    tmp.then(
-                        console.log("await run")
-                        //updateRecord("LOSE", google_id)
-                        );    
+                    updateWinner(google_id, user2coin, user2ticket, old.googleid);
+                      
                 }
             }else{
                 if (old.score > score){
@@ -199,7 +194,7 @@ io.on('connection', (socket) => {
 
     
             //console.log(userResult);
-            //console.log("--------------------first end----------------------") ;
+            console.log("--------------------first end----------------------") ;
         }
         
     });
@@ -264,6 +259,7 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
     };
 
     const docRef = await addDoc(collection(db, room), jv);
+    console.log("send detail to firebase")
 }
 
 async function updateRecord(gameStatus, userId){
