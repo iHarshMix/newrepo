@@ -155,22 +155,22 @@ io.on('connection', (socket) => {
             if (skt.id === userArray[0].id){
                 if (old.score > score){
                     updateWinner(old.googleid, user1coin, user1ticket, google_id);
-                    updateRecord("WIN", old.googleid);
+                    //updateRecord("WIN", old.googleid);
                
                 }else{
 
-                    updateRecord("LOSE", google_id);
+                    //updateRecord("LOSE", google_id);
                     updateWinner(google_id, user2coin, user2ticket, old.googleid);
                     
                 }
             }else{
                 if (old.score > score){
 
-                    updateRecord("LOSE", google_id);
+                    //updateRecord("LOSE", google_id);
                     updateWinner(google_id, user2coin, user2ticket, old.googleid);
                     
                 }else{
-                   updateRecord("WIN", old.googleid);
+                  // updateRecord("WIN", old.googleid);
                     updateWinner(old.googleid, user1coin, user1ticket, google_id);
           
                 }
@@ -267,7 +267,7 @@ async function updateRecord(gameStatus, userId){
         status : gameStatus, 
         timestamp : d
     };
-    const docRef = await addDoc(collection(db, "Tip", "history", userId), recordData);
+    const docReff = await addDoc(collection(db, "Tip", "history", userId), recordData);
 };
 
 //waht happen
