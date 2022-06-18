@@ -258,7 +258,8 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
         "googleId" : googleid
     };
 
-    const docRef = await addDoc(collection(db, room), jv);
+    console.log(jv);
+    //const docRef = await addDoc(collection(db, room), jv);
     console.log("send detail to firebase")
 }
 
