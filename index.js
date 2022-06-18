@@ -158,7 +158,7 @@ io.on('connection', (socket) => {
                     let tmp = updateWinner(old.googleid, user1coin, user1ticket, google_id);
                     tmp.then(
                         console.log("await run")
-                        updateRecord("WIN", old.googleid)
+                        //updateRecord("WIN", old.googleid)
                         );
                
                 }else{
@@ -166,7 +166,7 @@ io.on('connection', (socket) => {
                     let tmp = updateWinner(google_id, user2coin, user2ticket, old.googleid);
                     tmp.then(
                         console.log("await run")
-                        updateRecord("LOSE", google_id)
+                        //updateRecord("LOSE", google_id)
                         );    
                 }
             }else{
