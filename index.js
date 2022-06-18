@@ -127,9 +127,10 @@ io.on('connection', (socket) => {
         }
 
         let reportString = JSON.stringify(report);
-        sendDeatilsToFirebase(room, reportString, score, timeforsubmission, google_id);
+        let det = sendDeatilsToFirebase(room, reportString, score, timeforsubmission, google_id);
 
-        if (userResult.has(room)){
+        det.then(
+            if (userResult.has(room)){
             let obj = {};
             obj["report"] = report;
             obj["googleid"] = google_id;
@@ -197,6 +198,9 @@ io.on('connection', (socket) => {
             console.log("--------------------first end----------------------") ;
         }
         
+            )
+
+        
     });
 
 });
@@ -260,7 +264,7 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
 
     //console.log(jv);
     const docRef = await addDoc(collection(db, room), jv);
-    console.log("send detail to firebase")
+    return "send detail to firebase";
 }
 
 async function updateRecord(gameStatus, userId){
