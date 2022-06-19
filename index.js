@@ -193,15 +193,19 @@ function genereateScore(room, report, score, socket, google_id){
 
             if (skt.id === userArray[0].id){
                 if (old.score > score){
+                    console.log(`user win - ${old.username}`);
                     updateWinner(old.googleid, user1coin, user1ticket, google_id);
                 }else{
+                    console.log(`user win - ${userArray[1].username}`);
                     updateWinner(google_id, user2coin, user2ticket, old.googleid);
                 }
             }else{
                 if (old.score > score){
+                    console.log(`user win - ${userArray[1].username}`);
                     updateWinner(google_id, user2coin, user2ticket, old.googleid);
                     
                 }else{
+                    console.log(`user win - ${old.username}`);
                     updateWinner(old.googleid, user1coin, user1ticket, google_id);
           
                 }
@@ -224,17 +228,17 @@ function genereateScore(room, report, score, socket, google_id){
     }
 
 async function updateWinner(userId, currCoins, currTickets, userId2){
-    const snap1 = await doc(db, userId);
-    const snap2 = await doc(db, userId2);
+    const snap = await doc(db, userId);
+    //const snap2 = await doc(db, userId2);
 
-    await updateDoc(snap1, {
+    await updateDoc(snap, {
     userCoins: currCoins + 5,
     userTickets : currTickets - 1
     });
 
-    await updateDoc(snap2, {
+    /*await updateDoc(snap2, {
     userTickets : currTickets - 1
-    });
+    });*/
 }
 
 async function sendDeatilsToFirebase(room, report, score, timetaken, googleid, socket, callback){
