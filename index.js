@@ -207,14 +207,22 @@ function genereateScore(room, report, score, socket, google_id){
             if (skt.id === userArray[0].id){
                 if (old.score > score){
                     updateWinner(user1googleid, user1coin, user1ticket, user2googleid);
+                    updateRecord("WIN", user1googleid);
+                    updateRecord("LOSE", user2googleid);
                 }else{
                     updateWinner(user2googleid, user2coin, user2ticket, user1googleid);
+                    updateRecord("LOSE", user1googleid);
+                    updateRecord("WIN", user2googleid);
                 }
             }else{
                 if (old.score > score){
                     updateWinner(user2googleid, user2coin, user2ticket, user1googleid);
+                    updateRecord("LOSE", user1googleid);
+                    updateRecord("WIN", user2googleid);
                 }else{
                     updateWinner(user1googleid, user1coin, user1ticket, user2googleid);
+                    updateRecord("WIN", user1googleid);
+                    updateRecord("LOSE", user2googleid);
                 }
             }
 
@@ -258,7 +266,7 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid, s
     };
 
     //console.log(jv);
-    const docRef = await addDoc(collection(db, room), jv);
+    const docRef = await addDoc(collection(db, "Tip", "result", room), jv);
     callback(room, report, score, socket, googleid);
     
 }
