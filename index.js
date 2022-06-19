@@ -191,7 +191,17 @@ function genereateScore(room, report, score, socket, google_id){
             let user1coin = userArray[0].userCoin;
             let user2coin = userArray[1].userCoin;
 
-            if (skt.id === userArray[0].id){
+            console.log(`user 1 name - ${userArray[0].username}`);
+            console.log(`user 1 coins - ${user1coin}`);
+            console.log(`user 1 ticket - ${user1ticket}`);
+            console.log(`user 1 googleid - ${userArray[0].googleid}`);
+            console.log(`user 2 name - ${userArray[1].username}`);
+            console.log(`user 2 coins - ${user2coin}`);
+            console.log(`user 2 ticket - ${user2ticket}`);
+            console.log(`user 2 googleid - ${userArray[1].googleid}`);
+            
+
+            /*if (skt.id === userArray[0].id){
                 if (old.score > score){
                     console.log(`user win - ${old.username}`);
                     updateWinner(old.googleid, user1coin, user1ticket, google_id);
@@ -209,7 +219,7 @@ function genereateScore(room, report, score, socket, google_id){
                     updateWinner(old.googleid, user1coin, user1ticket, google_id);
           
                 }
-            }
+            }*/
 
             console.log("--------------------Second end----------------------") ;
         }else{
