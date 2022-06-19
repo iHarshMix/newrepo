@@ -197,11 +197,11 @@ function genereateScore(room, report, score, socket, google_id){
             console.log(`user 1 name - ${userArray[0].userName}`);
             console.log(`user 1 coins - ${user1coin}`);
             console.log(`user 1 ticket - ${user1ticket}`);
-            console.log(`user 1 googleid - ${userResultArray[0].googleid}`);
+            console.log(`user 1 googleid - ${user1googleid}`);
             console.log(`user 2 name - ${userArray[1].userName}`);
             console.log(`user 2 coins - ${user2coin}`);
             console.log(`user 2 ticket - ${user2ticket}`);
-            console.log(`user 2 googleid - ${userResultArray[1].googleid}`);
+            console.log(`user 2 googleid - ${user2googleid}`);
             
 
             if (skt.id === userArray[0].id){
