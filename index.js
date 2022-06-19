@@ -127,8 +127,7 @@ io.on('connection', (socket) => {
         }
 
         let reportString = JSON.stringify(report);
-        let callback = genereateScore(room, report, score, socket, google_id);
-        sendDeatilsToFirebase(room, reportString, score, timeforsubmission, google_id, callback).then( console.log("firebase details sent"));
+        sendDeatilsToFirebase(room, reportString, score, timeforsubmission, google_id, socket, genereateScore).then( console.log("firebase details sent"));
 
         
     });
@@ -222,7 +221,7 @@ async function updateWinner(userId, currCoins, currTickets, userId2){
     });
 }
 
-async function sendDeatilsToFirebase(room, report, score, timetaken, googleid, callback){
+async function sendDeatilsToFirebase(room, report, score, timetaken, googleid, socket, callback){
     
     let jv = {
         "report" : report,
@@ -233,7 +232,7 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid, c
 
     //console.log(jv);
     const docRef = await addDoc(collection(db, room), jv);
-    callback();
+    callback(room, report, score, socket, googleid);
     
 }
 
