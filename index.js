@@ -127,78 +127,8 @@ io.on('connection', (socket) => {
         }
 
         let reportString = JSON.stringify(report);
-        let det = sendDeatilsToFirebase(room, reportString, score, timeforsubmission, google_id);
-
-        det.then(
-            if (userResult.has(room)){
-            let obj = {};
-            obj["report"] = report;
-            obj["googleid"] = google_id;
-            obj["score"] = score;
-            obj["socketid"] = socket;
-            let old = userResult.get(room);
-
-            let skt = old.socketid;
-            
-            let arr = [];
-            arr.push(old);
-            arr.push(obj);
-
-            userResult.set(room, arr);
-            let userArray = Array.from(users.get(room));
-            
-            let user1ticket = userArray[0].userTickets;
-            let user2ticket = userArray[1].userTickets;
-            let user1coin = userArray[0].userCoin;
-            let user2coin = userArray[1].userCoin;
-
-            console.log("--------------------Second end----------------------") ;
-
-         /*   if (skt.id === userArray[0].id){
-                if (old.score > score){
-                    
-                    updateWinner(old.googleid, user1coin, user1ticket, google_id);
-                    
-               
-                }else{
-
-                    updateWinner(google_id, user2coin, user2ticket, old.googleid);
-                      
-                }
-            }else{
-                if (old.score > score){
-
-                    //updateRecord("LOSE", google_id);
-                    updateWinner(google_id, user2coin, user2ticket, old.googleid);
-                    
-                }else{
-                  // updateRecord("WIN", old.googleid);
-                    updateWinner(old.googleid, user1coin, user1ticket, google_id);
-          
-                }
-            }*/
-            
-          /*  skt.disconnect();
-            socket.disconnect();
-            console.log(`both sockets disconnected`);
-            userResult.delete(room);
-            users.delete(room);*/
-       
-        } else{
-
-            let obj = {};
-            obj["report"] = report;
-            obj["googleid"] = google_id;
-            obj["score"] = score;
-            obj["socketid"] = socket;
-            userResult.set(room, obj);
-
-    
-            //console.log(userResult);
-            console.log("--------------------first end----------------------") ;
-        }
-        
-            )
+        let callback = genereateScore(room, report, score, socket, google_id);
+        sendDeatilsToFirebase(room, reportString, score, timeforsubmission, google_id, callback).then( console.log("firebase details sent"));
 
         
     });
@@ -209,6 +139,7 @@ server.listen(port, () => {console.log('listening on *:', port);});
 
 
 //<-------------------------------------Functions are defined here--------------------------------------->
+
 function isEnoughUsers() { return usersInRoom.length === 2; }
 function generateEasyQuestions() {let questions = {}; 
     for (let sno = 1; sno <= 5; sno++){
@@ -237,7 +168,45 @@ function createUuid() { var dt = new Date().getTime();
     });
     return uuid; }
 
+function genereateScore(room, report, score, socket, google_id){
+    
+     if (userResult.has(room)){
+            let obj = {};
+            obj["report"] = report;
+            obj["score"] = score;
+            obj["socketid"] = socket;
+            obj["googleid"] = google_id;
+            let old = userResult.get(room);
 
+            let skt = old.socketid;
+            
+            let arr = [];
+            arr.push(old);
+            arr.push(obj);
+
+            userResult.set(room, arr);
+            let userArray = Array.from(users.get(room));
+            
+            let user1ticket = userArray[0].userTickets;
+            let user2ticket = userArray[1].userTickets;
+            let user1coin = userArray[0].userCoin;
+            let user2coin = userArray[1].userCoin;
+
+            console.log("--------------------Second end----------------------") ;
+        }else{
+
+              let obj = {};
+            obj["report"] = report;
+            obj["googleid"] = google_id;
+            obj["score"] = score;
+            obj["socketid"] = socket;
+            userResult.set(room, obj);
+
+    
+            //console.log(userResult);
+            console.log("--------------------first end----------------------") ;
+        }
+    }
 
 async function updateWinner(userId, currCoins, currTickets, userId2){
     const snap1 = await doc(db, userId);
@@ -253,7 +222,7 @@ async function updateWinner(userId, currCoins, currTickets, userId2){
     });
 }
 
-async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
+async function sendDeatilsToFirebase(room, report, score, timetaken, googleid, callback){
     
     let jv = {
         "report" : report,
@@ -264,7 +233,8 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid){
 
     //console.log(jv);
     const docRef = await addDoc(collection(db, room), jv);
-    return "send detail to firebase";
+    callback();
+    
 }
 
 async function updateRecord(gameStatus, userId){
@@ -283,3 +253,73 @@ async function updateRecord(gameStatus, userId){
     /*socket.on('get_result', (room) =>{
         
     });*/
+
+
+/*
+     if (userResult.has(room)){
+            let obj = {};
+            obj["report"] = report;
+            obj["googleid"] = google_id;
+            obj["score"] = score;
+            obj["socketid"] = socket;
+            let old = userResult.get(room);
+
+            let skt = old.socketid;
+            
+            let arr = [];
+            arr.push(old);
+            arr.push(obj);
+
+            userResult.set(room, arr);
+            let userArray = Array.from(users.get(room));
+            
+            let user1ticket = userArray[0].userTickets;
+            let user2ticket = userArray[1].userTickets;
+            let user1coin = userArray[0].userCoin;
+            let user2coin = userArray[1].userCoin;
+
+            console.log("--------------------Second end----------------------") ;
+
+            if (skt.id === userArray[0].id){
+                if (old.score > score){
+                    
+                    updateWinner(old.googleid, user1coin, user1ticket, google_id);
+                    
+               
+                }else{
+
+                    updateWinner(google_id, user2coin, user2ticket, old.googleid);
+                      
+                }
+            }else{
+                if (old.score > score){
+
+                    //updateRecord("LOSE", google_id);
+                    updateWinner(google_id, user2coin, user2ticket, old.googleid);
+                    
+                }else{
+                  // updateRecord("WIN", old.googleid);
+                    updateWinner(old.googleid, user1coin, user1ticket, google_id);
+          
+                }
+            }
+            
+          /*  skt.disconnect();
+            socket.disconnect();
+            console.log(`both sockets disconnected`);
+            userResult.delete(room);
+            users.delete(room);*/
+       
+    /*    } else{
+
+            let obj = {};
+            obj["report"] = report;
+            obj["googleid"] = google_id;
+            obj["score"] = score;
+            obj["socketid"] = socket;
+            userResult.set(room, obj);
+
+    
+            //console.log(userResult);
+            console.log("--------------------first end----------------------") ;
+        }*/
