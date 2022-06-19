@@ -235,8 +235,8 @@ function genereateScore(room, report, score, socket, google_id){
     }
 
 async function updateWinner(userId, currCoins, currTickets, userId2){
-    const snap = await doc(db, userId);
-    const snap2 = await doc(db, userId2);
+    const snap = await doc(db, "Users", userId);
+    const snap2 = await doc(db, "Users", userId2);
 
     await updateDoc(snap, {
     userCoins: currCoins + 5,
