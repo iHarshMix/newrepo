@@ -191,6 +191,22 @@ function genereateScore(room, report, score, socket, google_id){
             let user1coin = userArray[0].userCoin;
             let user2coin = userArray[1].userCoin;
 
+            if (skt.id === userArray[0].id){
+                if (old.score > score){
+                    updateWinner(old.googleid, user1coin, user1ticket, google_id);
+                }else{
+                    updateWinner(google_id, user2coin, user2ticket, old.googleid);
+                }
+            }else{
+                if (old.score > score){
+                    updateWinner(google_id, user2coin, user2ticket, old.googleid);
+                    
+                }else{
+                    updateWinner(old.googleid, user1coin, user1ticket, google_id);
+          
+                }
+            }
+
             console.log("--------------------Second end----------------------") ;
         }else{
 
@@ -279,29 +295,7 @@ async function updateRecord(gameStatus, userId){
 
             console.log("--------------------Second end----------------------") ;
 
-            if (skt.id === userArray[0].id){
-                if (old.score > score){
-                    
-                    updateWinner(old.googleid, user1coin, user1ticket, google_id);
-                    
-               
-                }else{
-
-                    updateWinner(google_id, user2coin, user2ticket, old.googleid);
-                      
-                }
-            }else{
-                if (old.score > score){
-
-                    //updateRecord("LOSE", google_id);
-                    updateWinner(google_id, user2coin, user2ticket, old.googleid);
-                    
-                }else{
-                  // updateRecord("WIN", old.googleid);
-                    updateWinner(old.googleid, user1coin, user1ticket, google_id);
-          
-                }
-            }
+            
             
           /*  skt.disconnect();
             socket.disconnect();
