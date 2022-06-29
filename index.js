@@ -217,14 +217,14 @@ function genereateScore(room, report, score, socket, google_id){
             }else{
                 if (old.score > score){
                     updateWinner(user2googleid, user2coin, user2ticket, user1googleid);
-                    updateRecord("LOSE", user1googleid);
-                    updateRecord("WIN", user2googleid);
+                    
                 }else{
                     updateWinner(user1googleid, user1coin, user1ticket, user2googleid);
-                    updateRecord("WIN", user1googleid);
-                    updateRecord("LOSE", user2googleid);
                 }
             }
+
+            userResult.delete(room);
+            users.delete(room);
 
             console.log("--------------------Second end----------------------") ;
         }else{
