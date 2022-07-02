@@ -137,16 +137,7 @@ io.on('connection', (socket) => {
         //let adstatus = userInfo.status;
 
         checkforDocument(googleid).then(()=>{
-
-            const docc = getDoc(doc(db, "WatchAds", googleid));
-            let stu = docc.data();
-            let adsRemain = stu.AdsRemaining;
-            if (adsRemain === 0){
-                console.log("no ads AdsRemaining");
-                socket.emit("noads");
-            }else{
-                console.log(`no AdsRemaining  ${adsRemain}`);
-            }
+            increaseTickets(googleid);
         });
     
     });
@@ -157,6 +148,18 @@ server.listen(port, () => {console.log('listening on *:', port);});
 
 
 //<-------------------------------------Functions are defined here--------------------------------------->
+
+async function increaseTickets(googleid){
+    const docc = await getDoc(doc(db, "WatchAds", googleid));
+        let stu = docc.data();
+        let adsRemain = stu.AdsRemaining;
+        if (adsRemain === 0){
+            console.log("no ads AdsRemaining");
+            socket.emit("noads");
+        }else{
+            console.log(`no AdsRemaining  ${adsRemain}`);
+        }
+};
 
 async function checkforDocument(googleid){
     const adsRem = await getDoc(doc(db, "WatchAds", googleid));
