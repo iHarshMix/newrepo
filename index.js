@@ -28,11 +28,11 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-//updateRecord("WIN", "101411107148464225590");
 
 
 let users = new Map();
 let userResult = new Map();
+let userWatchAds = new Map();
 //let userResult = [];
 let usersInRoom = [];
 
@@ -132,6 +132,25 @@ io.on('connection', (socket) => {
         
     });
 
+    socket.on('watchAds', (userInfo) => {
+        let googleid = userInfo.googleid;
+        let adstatus = userInfo.status;
+
+        checkforDocument().then(()=>{
+            
+             const docc = await getDoc(doc(db, "WatchAds", googleid));
+            let stu = docc.data();
+            let adsRemain = stu.AdsRemaining;
+            if (adsRemain === 0){
+                console.log("no ads AdsRemaining");
+                socket.emit("noads");
+            }else{
+                console.log(`no AdsRemaining  ${adsRemain}`);
+            }
+        });
+    
+    });
+
 });
 
 server.listen(port, () => {console.log('listening on *:', port);});
@@ -139,6 +158,14 @@ server.listen(port, () => {console.log('listening on *:', port);});
 
 //<-------------------------------------Functions are defined here--------------------------------------->
 
+function checkforDocument(){
+    const adsRem = await getDoc(doc(db, "WatchAds", googleid));
+            if (!adsRem.exists()){
+            const setAds = await setDoc(doc(db, "WatchAds", googleid), {
+                "AdsRemaining" : 5
+        });
+    }
+}
 function isEnoughUsers() { return usersInRoom.length === 2; }
 function generateEasyQuestions() {let questions = {}; 
     for (let sno = 1; sno <= 5; sno++){
@@ -273,13 +300,14 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid, s
 
 async function updateRecord(gameStatus, userId){
 
-    var d = new Date();
+    var date = new Date();
     let recordData = {
         status : gameStatus, 
-        timestamp : d
+        timestamp : date
     };
     const docReff = await addDoc(collection(db, "Tip", "history", userId), recordData);
 };
+
 
 //waht happen
 
