@@ -136,7 +136,7 @@ io.on('connection', (socket) => {
         let googleid = userInfo.googleid;
         //let adstatus = userInfo.status;
 
-        checkforDocument().then(()=>{
+        checkforDocument(googleid).then(()=>{
 
             const docc = getDoc(doc(db, "WatchAds", googleid));
             let stu = docc.data();
@@ -158,7 +158,7 @@ server.listen(port, () => {console.log('listening on *:', port);});
 
 //<-------------------------------------Functions are defined here--------------------------------------->
 
-async function checkforDocument(){
+async function checkforDocument(googleid){
     const adsRem = await getDoc(doc(db, "WatchAds", googleid));
             if (!adsRem.exists()){
             const setAds = await setDoc(doc(db, "WatchAds", googleid), {
