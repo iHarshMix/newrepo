@@ -134,10 +134,10 @@ io.on('connection', (socket) => {
 
     socket.on('watchAds', (userInfo) => {
         let googleid = userInfo.googleid;
-        //let adstatus = userInfo.status;
+        let adstatus = userInfo.status;
 
         checkforDocument(googleid).then(()=>{
-            increaseTickets(googleid);
+            increaseTickets(googleid, adstatus);
         });
     
     });
@@ -149,17 +149,28 @@ server.listen(port, () => {console.log('listening on *:', port);});
 
 //<-------------------------------------Functions are defined here--------------------------------------->
 
-async function increaseTickets(googleid){
+async function increaseTickets(googleid, adstatus){
     const docc = await getDoc(doc(db, "WatchAds", googleid));
         let stu = docc.data();
         let adsRemain = stu.AdsRemaining;
         if (adsRemain === 0){
             console.log("no ads AdsRemaining");
-            socket.emit("noads");
+            //socket.emit("noads");
         }else{
-            console.log(`no AdsRemaining  ${adsRemain}`);
+            if (adstatus === "full"){
+                let userTic = getTickets(googleid);
+                updateTickets(googleid, userTic);
+                console.log("tickets Added");
+            }
         }
 };
+
+async function getTickets(googleid){
+    const tik = await getDoc(doc(db, "Users", googleid));
+    let tikk = tik.data();
+    let tic = tikk.userTickets;
+    return tic;
+}
 
 async function checkforDocument(googleid){
     const adsRem = await getDoc(doc(db, "WatchAds", googleid));
@@ -224,14 +235,14 @@ function genereateScore(room, report, score, socket, google_id){
             let user2coin = userArray[1].userCoin;
             let user2googleid = userResultArray[1].googleid;
 
-            console.log(`user 1 name - ${userArray[0].userName}`);
+           /* console.log(`user 1 name - ${userArray[0].userName}`);
             console.log(`user 1 coins - ${user1coin}`);
             console.log(`user 1 ticket - ${user1ticket}`);
             console.log(`user 1 googleid - ${user1googleid}`);
             console.log(`user 2 name - ${userArray[1].userName}`);
             console.log(`user 2 coins - ${user2coin}`);
             console.log(`user 2 ticket - ${user2ticket}`);
-            console.log(`user 2 googleid - ${user2googleid}`);
+            console.log(`user 2 googleid - ${user2googleid}`);*/
             
 
             if (skt.id === userArray[0].id){
@@ -285,6 +296,15 @@ async function updateWinner(userId, currCoins, currTickets, userId2){
     userTickets : currTickets - 1
     });
 }
+
+async function updateTickets(userId, currTickets){
+    const snapp = await doc(db, "Users", userId);
+    
+    await updateDoc(snapp, {
+    userTickets : currTickets + 1
+    });
+}
+
 
 async function sendDeatilsToFirebase(room, report, score, timetaken, googleid, socket, callback){
     
