@@ -136,7 +136,7 @@ io.on('connection', (socket) => {
         let googleid = userInfo.googleid;
         let adstatus = userInfo.status;
 
-        checkforDocument(googleid, 5).then(()=>{
+        checkforDocument(googleid).then(()=>{
             increaseTickets(googleid, adstatus);
         });
     
@@ -158,7 +158,7 @@ async function increaseTickets(googleid, adstatus){
         }else{
             if (adstatus === "full"){
                 op(googleid);
-                checkforDocument(googleid, adsRemain);
+                decreaseAds(googleid, adsRemain);
             }
         }
 };
@@ -172,16 +172,19 @@ async function op(googleid){
     console.log("tickets Added");
 };
 
-async function checkforDocument(googleid, adRem){
+async function checkforDocument(googleid){
     const adsRem = await getDoc(doc(db, "WatchAds", googleid));
         if (!adsRem.exists()){
             let jj = {"AdsRemaining" : 5};
             const setAds = await setDoc(doc(db, "WatchAds", googleid), jj);
-        }else{
-            let jj = {"AdsRemaining" : adRem - 1};
-            const setAds = await setDoc(doc(db, "WatchAds", googleid), jj);
         }
 }
+
+async function decreaseAds(googleid, adRem){
+    let jj = {"AdsRemaining" : adRem - 1};
+    const setAds = await setDoc(doc(db, "WatchAds", googleid), jj);
+}
+
 function isEnoughUsers() { return usersInRoom.length === 2; }
 function generateEasyQuestions() {let questions = {}; 
     for (let sno = 1; sno <= 5; sno++){
