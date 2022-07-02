@@ -158,16 +158,19 @@ async function increaseTickets(googleid, adstatus){
             //socket.emit("noads");
         }else{
             if (adstatus === "full"){
-                const tik = getDoc(doc(db, "Users", googleid));
-                let tikk = tik.data();
-                let tic = tikk.userTickets;
-            
-                updateTickets(googleid, tic);
-                console.log("tickets Added");
+                
             }
         }
 };
 
+async function op(googleid){
+    const tik = await getDoc(doc(db, "Users", googleid));
+    let tikk = tik.data();
+    let tic = tikk.userTickets;
+
+    updateTickets(googleid, tic);
+    console.log("tickets Added");
+};
 
 async function checkforDocument(googleid){
     const adsRem = await getDoc(doc(db, "WatchAds", googleid));
