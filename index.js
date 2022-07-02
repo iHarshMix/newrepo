@@ -158,7 +158,7 @@ async function increaseTickets(googleid, adstatus){
             //socket.emit("noads");
         }else{
             if (adstatus === "full"){
-                op(googleid)
+                op(googleid);
             }
         }
 };
