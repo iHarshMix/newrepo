@@ -134,11 +134,11 @@ io.on('connection', (socket) => {
 
     socket.on('watchAds', (userInfo) => {
         let googleid = userInfo.googleid;
-        let adstatus = userInfo.status;
+        //let adstatus = userInfo.status;
 
         checkforDocument().then(()=>{
-            
-             const docc = await getDoc(doc(db, "WatchAds", googleid));
+
+            const docc = getDoc(doc(db, "WatchAds", googleid));
             let stu = docc.data();
             let adsRemain = stu.AdsRemaining;
             if (adsRemain === 0){
@@ -158,7 +158,7 @@ server.listen(port, () => {console.log('listening on *:', port);});
 
 //<-------------------------------------Functions are defined here--------------------------------------->
 
-function checkforDocument(){
+async function checkforDocument(){
     const adsRem = await getDoc(doc(db, "WatchAds", googleid));
             if (!adsRem.exists()){
             const setAds = await setDoc(doc(db, "WatchAds", googleid), {
