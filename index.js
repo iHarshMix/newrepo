@@ -2,6 +2,7 @@ import path from 'path'
 import express from 'express'
 import http from 'http'
 import { initializeApp } from "firebase/app";
+//import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, getDoc, doc, updateDoc, addDoc, setDoc } from "firebase/firestore";
 import { Server } from "socket.io";
 const __dirname = path.resolve();
@@ -27,7 +28,6 @@ const db = getFirestore(app2);
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
-
 
 
 let users = new Map();
@@ -188,18 +188,54 @@ async function decreaseAds(googleid, adRem){
 function isEnoughUsers() { return usersInRoom.length === 2; }
 function generateEasyQuestions() {let questions = {}; 
     for (let sno = 1; sno <= 5; sno++){
-        let num1 = Math.floor((Math.random() * 100) + 1);
-        let num2 = Math.floor((Math.random() * 100) + 1);
-        let solution = num1 + num2;
 
+        var quetype = [0, 1];
+        var que = quetype[Math.floor(Math.random() * 2)];
+
+        if (que === 0){
+
+            let num1 = Math.floor((Math.random() * 100) + 1);
+            let num2 = Math.floor((Math.random() * 100) + 1);
+            var equation = num1.toString() + " + " + num2.toString() + " = ";
+            let solution = num1 + num2;
             var question = {
 
-                "firstValue" : num1,
-                "secondValue": num2,
+                "firstValue" : equation,
                 "solution": solution
             };
 
             questions[sno.toString()] = question;
+        }else{
+
+            var sequence = ["+", "*"];
+            var series = sequence[Math.floor(Math.random() * 2)];
+            var startNum = Math.floor(Math.random() * 10) + 1;
+            var multiplier = Math.floor(Math.random() * 5) + 2;
+
+            if (series === "+"){
+                var equation = startNum.toString() + ", " + (startNum + multiplier).toString() + ", " + (startNum + 2*multiplier).toString() + " ...";
+                let solution = startNum + 3*multiplier;
+                var question = {
+
+                    "firstValue" : equation,
+                    "solution": solution
+                };
+
+                questions[sno.toString()] = question;
+            }else{
+                var equation = startNum.toString() + ", " + (startNum * multiplier).toString() + ", " + (startNum * multiplier * multiplier).toString() + " ...";
+                let solution = startNum * multiplier * multiplier * multiplier;
+                var question = {
+
+                    "firstValue" : equation,
+                    "solution": solution
+                };
+
+                questions[sno.toString()] = question;
+            }
+
+         }
+
         }
         return questions;}
 
@@ -253,12 +289,12 @@ function genereateScore(room, report, score, socket, google_id){
             if (skt.id === userArray[0].id){
                 if (old.score > score){
                     updateWinner(user1googleid, user1coin, user1ticket, user2googleid);
-                    updateRecord("WIN", user1googleid);
-                    updateRecord("LOSE", user2googleid);
+                    updateRecord("Won", user1googleid);
+                    updateRecord("Lose", user2googleid);
                 }else{
                     updateWinner(user2googleid, user2coin, user2ticket, user1googleid);
-                    updateRecord("LOSE", user1googleid);
-                    updateRecord("WIN", user2googleid);
+                    updateRecord("Lose", user1googleid);
+                    updateRecord("Won", user2googleid);
                 }
             }else{
                 if (old.score > score){
@@ -335,59 +371,3 @@ async function updateRecord(gameStatus, userId){
     };
     const docReff = await addDoc(collection(db, "Tip", "history", userId), recordData);
 };
-
-
-//waht happen
-
-    //console.log what the hell is wrong 
-    /*socket.on('get_result', (room) =>{
-        
-    });*/
-
-
-/*
-     if (userResult.has(room)){
-            let obj = {};
-            obj["report"] = report;
-            obj["googleid"] = google_id;
-            obj["score"] = score;
-            obj["socketid"] = socket;
-            let old = userResult.get(room);
-
-            let skt = old.socketid;
-            
-            let arr = [];
-            arr.push(old);
-            arr.push(obj);
-
-            userResult.set(room, arr);
-            let userArray = Array.from(users.get(room));
-            
-            let user1ticket = userArray[0].userTickets;
-            let user2ticket = userArray[1].userTickets;
-            let user1coin = userArray[0].userCoin;
-            let user2coin = userArray[1].userCoin;
-
-            console.log("--------------------Second end----------------------") ;
-
-            
-            
-          /*  skt.disconnect();
-            socket.disconnect();
-            console.log(`both sockets disconnected`);
-            userResult.delete(room);
-            users.delete(room);*/
-       
-    /*    } else{
-
-            let obj = {};
-            obj["report"] = report;
-            obj["googleid"] = google_id;
-            obj["score"] = score;
-            obj["socketid"] = socket;
-            userResult.set(room, obj);
-
-    
-            //console.log(userResult);
-            console.log("--------------------first end----------------------") ;
-        }*/

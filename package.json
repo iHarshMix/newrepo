@@ -5,7 +5,7 @@
   "description": "my first socket.io app",
   "dependencies": {
     "express": "^4.17.3",
-    "firebase": "^9.6.10",
+    "firebase": "^9.8.4",
     "socket.io": "^4.4.1"
   },
   "scripts": {
