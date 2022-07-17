@@ -32,7 +32,7 @@ app.get('/', (req, res) => {
 
 let users = new Map();
 let userResult = new Map();
-let userWatchAds = new Map();
+//let userWatchAds = new Map();
 //let userResult = [];
 let usersInRoom = [];
 
@@ -89,13 +89,13 @@ io.on('connection', (socket) => {
                 //console.log(i);
                 let userr = Array.from(users.get(i));
                 if (socket.id === userr[0].id){
-                    console.log(`user left with users id : ${userr[0].id}`);
+                    console.log(`user left with users name : ${userr[0].username}`);
                     io.to(userr[1].id).emit('message', "other user disconnected");
                     users.delete(i);
                     w = 1;
                     break;
                 }else{
-                    console.log(`user left with users id : ${userr[1].id}`);
+                    console.log(`user left with users username : ${userr[1].username}`);
                     io.to(userr[0].id).emit('message', "other user disconnected");
                     users.delete(i);
                     w = 1;
@@ -127,7 +127,7 @@ io.on('connection', (socket) => {
         }
 
         let reportString = JSON.stringify(report);
-        sendDeatilsToFirebase(room, reportString, score, timeforsubmission, google_id, socket, genereateScore).then( console.log("firebase details sent"));
+        sendDetailsToFirebase(room, reportString, score, timeforsubmission, google_id, socket, generateScore).then( console.log("firebase details sent"));
 
         
     });
@@ -142,12 +142,25 @@ io.on('connection', (socket) => {
     
     });
 
+    socket.on('payout', (info) =>{
+        let type = info.type;
+        let amount = info.amount;
+        let googleid = info.googleid;
+
+
+
+    });
+
 });
 
 server.listen(port, () => {console.log('listening on *:', port);});
 
 
 //<-------------------------------------Functions are defined here--------------------------------------->
+
+async function addPayoutInfo(type, amount, googleid){
+    const docref = await getDoc(doc(db, ))
+}
 
 async function increaseTickets(googleid, adstatus){
     const docc = await getDoc(doc(db, "WatchAds", googleid));
@@ -249,7 +262,7 @@ function createUuid() { var dt = new Date().getTime();
     });
     return uuid; }
 
-function genereateScore(room, report, score, socket, google_id){
+function generateScore(room, report, score, socket, google_id, timetaken){
     
      if (userResult.has(room)){
             let obj = {};
@@ -257,6 +270,7 @@ function genereateScore(room, report, score, socket, google_id){
             obj["score"] = score;
             obj["socketid"] = socket;
             obj["googleid"] = google_id;
+            obj["timetaken"] = timetaken;
             let old = userResult.get(room);
 
             let skt = old.socketid;
@@ -272,36 +286,37 @@ function genereateScore(room, report, score, socket, google_id){
             let user1ticket = userArray[0].userTickets;
             let user1coin = userArray[0].userCoin;
             let user1googleid = userResultArray[0].googleid;
+            let user1timetaken = userResultArray[0].timetaken;
+            let user1score = userResultArray[0].score;
             let user2ticket = userArray[1].userTickets;
             let user2coin = userArray[1].userCoin;
             let user2googleid = userResultArray[1].googleid;
+            let user2timetaken = userResultArray[1].timetaken;
+            let user2score = userResultArray[1].score;
 
-           /* console.log(`user 1 name - ${userArray[0].userName}`);
-            console.log(`user 1 coins - ${user1coin}`);
-            console.log(`user 1 ticket - ${user1ticket}`);
-            console.log(`user 1 googleid - ${user1googleid}`);
-            console.log(`user 2 name - ${userArray[1].userName}`);
-            console.log(`user 2 coins - ${user2coin}`);
-            console.log(`user 2 ticket - ${user2ticket}`);
-            console.log(`user 2 googleid - ${user2googleid}`);*/
-            
 
-            if (skt.id === userArray[0].id){
-                if (old.score > score){
-                    updateWinner(user1googleid, user1coin, user1ticket, user2googleid);
+            if (user1score > user2score){
+                updateWinner(user1googleid, user1coin, user1ticket, user2googleid, 5, 0);
+                updateRecord("Won", user1googleid);
+                updateRecord("Lose", user2googleid);
+            }else if (user1score < user2score){
+                updateWinner(user2googleid, user2coin, user2ticket, user1googleid, 5, 0);
+                updateRecord("Lose", user1googleid);
+                updateRecord("Won", user2googleid);
+            }else{
+                if (user1timetaken < user2timetaken){
+                    updateWinner(user1googleid, user1coin, user1ticket, user2googleid, 5, 0);
                     updateRecord("Won", user1googleid);
                     updateRecord("Lose", user2googleid);
-                }else{
-                    updateWinner(user2googleid, user2coin, user2ticket, user1googleid);
+                }else if (user1timetaken < user2timetaken){
+                    updateWinner(user2googleid, user2coin, user2ticket, user1googleid, 5, 0);
                     updateRecord("Lose", user1googleid);
                     updateRecord("Won", user2googleid);
-                }
-            }else{
-                if (old.score > score){
-                    updateWinner(user2googleid, user2coin, user2ticket, user1googleid);
-                    
-                }else{
-                    updateWinner(user1googleid, user1coin, user1ticket, user2googleid);
+                }else {
+                    console.log("both users draw");
+                    updateWinner(user2googleid, user2coin, user2ticket, user1googleid, 3, 3);
+                    updateRecord("Draw", user1googleid);
+                    updateRecord("Draw", user2googleid);
                 }
             }
 
@@ -311,11 +326,12 @@ function genereateScore(room, report, score, socket, google_id){
             console.log("--------------------Second end----------------------") ;
         }else{
 
-              let obj = {};
+            let obj = {};
             obj["report"] = report;
             obj["googleid"] = google_id;
             obj["score"] = score;
             obj["socketid"] = socket;
+            obj["timetaken"] = timetaken;
             userResult.set(room, obj);
 
     
@@ -324,16 +340,17 @@ function genereateScore(room, report, score, socket, google_id){
         }
     }
 
-async function updateWinner(userId, currCoins, currTickets, userId2){
+async function updateWinner(userId, currCoins, currTickets, userId2, amount1, amount2){
     const snap = await doc(db, "Users", userId);
     const snap2 = await doc(db, "Users", userId2);
 
     await updateDoc(snap, {
-    userCoins: currCoins + 5,
+    userCoins: currCoins + amount1,
     userTickets : currTickets - 1
     });
 
     await updateDoc(snap2, {
+        userCoins: currCoins + amount2,
     userTickets : currTickets - 1
     });
 }
@@ -347,7 +364,7 @@ async function updateTickets(userId, currTickets){
 }
 
 
-async function sendDeatilsToFirebase(room, report, score, timetaken, googleid, socket, callback){
+async function sendDetailsToFirebase(room, report, score, timetaken, googleid, socket, callback){
     
     let jv = {
         "report" : report,
@@ -358,7 +375,7 @@ async function sendDeatilsToFirebase(room, report, score, timetaken, googleid, s
 
     //console.log(jv);
     const docRef = await addDoc(collection(db, "Tip", "result", room), jv);
-    callback(room, report, score, socket, googleid);
+    callback(room, report, score, socket, googleid, timetaken);
     
 }
 
