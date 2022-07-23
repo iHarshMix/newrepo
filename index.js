@@ -184,7 +184,7 @@ async function addUsersToRoom(){
 async function createNewAccount(googleid) {
     let jv = {
         "userCoins": 20,
-        "userTickets": 3,
+        "userTickets": 4,
         "googleId": googleid
     };
 
