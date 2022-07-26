@@ -156,6 +156,10 @@ io.on('connection', (socket) => {
         createNewAccount(googleid);
     })
 
+    socket.on('temp', ()=>{
+        console.log(socket.id);
+    });
+
 });
 
 server.listen(port, () => {
