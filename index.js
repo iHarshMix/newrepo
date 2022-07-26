@@ -156,8 +156,9 @@ io.on('connection', (socket) => {
         createNewAccount(googleid);
     })
 
-    socket.on('temp', ()=>{
-        console.log(socket.id);
+    socket.on('getQuestions', ()=> {
+        let listOfQuestions = JSON.stringify(generateEasyQuestions());
+        socket.emit('practiceQuestion', {questions: listOfQuestions});
     });
 
 });
