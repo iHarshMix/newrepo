@@ -161,6 +161,30 @@ io.on('connection', (socket) => {
         socket.emit('practiceQuestion', {questions: listOfQuestions});
     });
 
+    socket.on('getReport', (info)=>{
+        let reportJson = info.report1;
+        let reportJson2 = info.report2;
+        let time = info.time;
+        let userScore = info.score;
+
+        let score = 0;
+        for (let i = 0; i < reportJson.length; i++) {
+            if (reportJson[i].yourans === reportJson[i].correctans) {
+                score++;
+            }
+        }
+
+        let reportString2 = JSON.stringify(reportJson2);
+        let reportString1 = JSON.stringify(reportJson);
+        var js = {
+            "report1" : reportString1,
+            "report2" : reportString2,
+            "score" : score
+        };
+        socket.emit("userResult", js);
+
+    })
+
 });
 
 server.listen(port, () => {
