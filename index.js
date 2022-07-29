@@ -140,7 +140,6 @@ io.on('connection', (socket) => {
                 "time" : old.time,
                 "score" : old.score,
                 "report" : old.report,
-                "socket" : old.socket
             };
 
             let user2 = {
@@ -148,12 +147,11 @@ io.on('connection', (socket) => {
                 "time" : timeForSubmission,
                 "score" : score,
                 "report" : reportString,
-                "socket" : socket
             };
 
-
-            socket.emit('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
-            old.socket.emit('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
+            io.to(room).emit('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
+           // socket.emit('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
+            //old.socket.e('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
 
             userResult.delete(room);
                         //io.to(room).emit( {
