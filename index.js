@@ -132,8 +132,8 @@ io.on('connection', (socket) => {
             console.log("after--------------------------------------")
             console.log(`room ${room}`);
             let old = userResult.get(room);
-            console.log(old.googleid);
-            console.log(old.time);
+            //console.log(old.googleid);
+            //console.log(old.time);
             
             let user1 = {
                 "googleid" : old.googleid,
@@ -150,9 +150,10 @@ io.on('connection', (socket) => {
                 "report" : reportString,
                 "socket" : socket
             };
-        
-            socket.emit('userReport', {"user1" : user1, "user2": user2});
-            old.socket.emit('userReport', {"user1" : user1, "user2": user2});
+
+
+            socket.emit('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
+            old.socket.emit('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
 
             userResult.delete(room);
                         //io.to(room).emit( {
@@ -160,7 +161,7 @@ io.on('connection', (socket) => {
             //console.log(old[0].time);
 
         }else {
-            console.log(`room ${room}`);
+            //console.log(`room ${room}`);
             let jv = {
                 "googleid" : google_id,
                 "time" : timeForSubmission,
@@ -169,7 +170,7 @@ io.on('connection', (socket) => {
                 "socket" : socket
             };
             userResult.set(room, jv);
-            console.log(userResult.get(room))
+            //console.log(userResult.get(room))
         }
 
         /*let reportString = JSON.stringify(report);
