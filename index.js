@@ -129,12 +129,16 @@ io.on('connection', (socket) => {
 
         let reportString = JSON.stringify(report);
         if (userResult.has(room)){
+            console.log("after--------------------------------------")
+            console.log(`room ${room}`);
+            console.log(userResult.get(room))
             let old = Array.from(userResult.get(room));
             console.log(old);
            // console.log(old[0].googleid);
             //console.log(old[0].time);
 
         }else {
+            console.log(`room ${room}`);
             let jv = {
                 "googleid" : google_id,
                 "time" : timeForSubmission,
