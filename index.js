@@ -135,6 +135,25 @@ io.on('connection', (socket) => {
             console.log(old.googleid);
             console.log(old.time);
             
+            let user1 = {
+                "googleid" : old.googleid,
+                "time" : old.time,
+                "score" : old.score,
+                "report" : old.report
+            };
+
+            let user2 = {
+                "googleid" : google_id,
+                "time" : timeForSubmission,
+                "score" : score,
+                "report" : reportString
+            };
+
+        
+            setTimeout(()=>{
+                io.to(room).emit('userReport', {"user1" : user1, "user2": user2});
+            }, 1000);
+            //io.to(room).emit( {
            // console.log(old[0].googleid);
             //console.log(old[0].time);
 
