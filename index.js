@@ -48,7 +48,6 @@ io.on('connection', (socket) => {
         let user = {
             "socket": socket,
             "id": socket.id,
-            "roomType": usertype.type,
             "userName": usertype.username,
             "userCoin": usertype.usercoins,
             "userTickets": usertype.usertickets,
@@ -118,7 +117,7 @@ io.on('connection', (socket) => {
         let report = info.report;
         let room = info.room;
         let google_id = info.google_id;
-        let timeforsubmission = info.time;
+        let timeForSubmission = info.time;
         let userOfflineScore = info.score;
 
         let score = 0;
@@ -129,10 +128,26 @@ io.on('connection', (socket) => {
         }
 
         let reportString = JSON.stringify(report);
+        if (userResult.has(room)){
+            let old = Array.from(userResult.get(room))
+            console.log(old.googleid);
+            console.log(old.time);
+
+        }else {
+            let jv = {
+                "googleid" : google_id,
+                "time" : timeForSubmission,
+                "score" : score,
+                "report" : reportString
+            };
+            userResult.set(room, jv);
+        }
+
+        /*let reportString = JSON.stringify(report);
         sendDetailsToFirebase(room, reportString, score, timeforsubmission, google_id, socket, generateScore)
             .then(()=>{
                 console.log("firebase details sent")
-            });
+            });*/
 
     });
 
