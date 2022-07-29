@@ -130,8 +130,8 @@ io.on('connection', (socket) => {
         let reportString = JSON.stringify(report);
         if (userResult.has(room)){
             let old = Array.from(userResult.get(room))
-            console.log(old.googleid);
-            console.log(old.time);
+            console.log(old[0].googleid);
+            console.log(old[0].time);
 
         }else {
             let jv = {
