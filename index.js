@@ -150,13 +150,12 @@ io.on('connection', (socket) => {
                 "report" : reportString,
                 "socket" : socket
             };
-
         
-            setTimeout(()=>{
-                socket.emit('userReport', {"user1" : user1, "user2": user2});
-                old.socket.emit('userReport', {"user1" : user1, "user2": user2});
-            }, 1000);
-            //io.to(room).emit( {
+            socket.emit('userReport', {"user1" : user1, "user2": user2});
+            old.socket.emit('userReport', {"user1" : user1, "user2": user2});
+
+            userResult.delete(room);
+                        //io.to(room).emit( {
            // console.log(old[0].googleid);
             //console.log(old[0].time);
 
