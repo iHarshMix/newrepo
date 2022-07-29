@@ -139,19 +139,22 @@ io.on('connection', (socket) => {
                 "googleid" : old.googleid,
                 "time" : old.time,
                 "score" : old.score,
-                "report" : old.report
+                "report" : old.report,
+                "socket" : old.socket
             };
 
             let user2 = {
                 "googleid" : google_id,
                 "time" : timeForSubmission,
                 "score" : score,
-                "report" : reportString
+                "report" : reportString,
+                "socket" : socket
             };
 
         
             setTimeout(()=>{
-                io.to(room).emit('userReport', {"user1" : user1, "user2": user2});
+                socket.emit('userReport', {"user1" : user1, "user2": user2});
+                old.socket.emit('userReport', {"user1" : user1, "user2": user2});
             }, 1000);
             //io.to(room).emit( {
            // console.log(old[0].googleid);
@@ -163,7 +166,8 @@ io.on('connection', (socket) => {
                 "googleid" : google_id,
                 "time" : timeForSubmission,
                 "score" : score,
-                "report" : reportString
+                "report" : reportString,
+                "socket" : socket
             };
             userResult.set(room, jv);
             console.log(userResult.get(room))
