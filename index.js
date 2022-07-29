@@ -131,9 +131,10 @@ io.on('connection', (socket) => {
         if (userResult.has(room)){
             console.log("after--------------------------------------")
             console.log(`room ${room}`);
-            console.log(userResult.get(room))
-            let old = Array.from(userResult.get(room));
-            console.log(old);
+            let old = userResult.get(room);
+            console.log(old.googleid);
+            console.log(old.time);
+            
            // console.log(old[0].googleid);
             //console.log(old[0].time);
 
