@@ -140,9 +140,9 @@ io.on('connection', (socket) => {
             };
 
             let user2 = {
-                "googleid" : "na",
-                "time" : 0,
-                "score" : 0,
+                "googleid" : "11",
+                "time" : timeForSubmission,
+                "score" : score-1,
                 "report" : reportStringPractice,
             };
 
