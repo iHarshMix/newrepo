@@ -489,11 +489,11 @@ async function sendDetailsToFirebase2(room, user1, user2) {
     let jv = {
         "report1": user1.report,
         "score1": user1.score,
-        "time1": user1.timetaken,
+        "time1": user1.time,
         "googleId1": user1.googleid,
         "report2": user2.report,
         "score2": user2.score,
-        "time2": user2.timetaken,
+        "time2": user2.time,
         "googleId2": user2.googleid,
     };
 
