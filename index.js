@@ -149,8 +149,8 @@ io.on('connection', (socket) => {
                 "report" : reportString,
             };
 
-            io.to(room).emit('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
-           // socket.emit('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
+            old.socket.emit('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
+            socket.emit('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
             //old.socket.e('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
 
             userResult.delete(room);
