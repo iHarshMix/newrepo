@@ -150,10 +150,7 @@ io.on('connection', (socket) => {
             };
 
 
-            setTimeout(()=>{
-                old.socket.emit('userReport', {"user1" : user1, "user2": user2});
-                socket.emit('userReport', {"user1" : user1, "user2": user2});
-            }, 2000);
+            sendDetailsToFirebase2(room, user1, user2);
         
             //old.socket.e('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
             //userResult.delete(room);
@@ -168,7 +165,6 @@ io.on('connection', (socket) => {
                 "time" : timeForSubmission,
                 "score" : score,
                 "report" : reportString,
-                "socket" : socket
             };
             userResult.set(room, jv);
             //console.log(userResult.get(room))
@@ -237,8 +233,9 @@ server.listen(port, () => {
     console.log('listening on *:', port);
 });
 
-
 //<-------------------------------------Functions are defined here--------------------------------------->
+
+
 async function addUsersToRoom(){
     let socket1 = usersInRoom[0].socket;
     let socket2 = usersInRoom[1].socket;
@@ -484,6 +481,25 @@ async function sendDetailsToFirebase(room, report, score, timetaken, googleid, s
     //console.log(jv);
     const docRef = await addDoc(collection(db, "Tip", "result", room), jv);
     callback(room, report, score, socket, googleid, timetaken);
+
+}
+
+async function sendDetailsToFirebase2(room, user1, user2) {
+
+    let jv = {
+        "report1": user1.report,
+        "score1": user1.score,
+        "time1": user1.timetaken,
+        "googleId1": user1.googleid,
+        "report2": user2.report,
+        "score2": user2.score,
+        "time2": user2.timetaken,
+        "googleId2": user2.googleid,
+    };
+
+    //console.log(jv);
+    const docRef = await addDoc(collection(db, "Tip", "result", room), jv);
+    //callback(room, report, score, socket, googleid, timetaken);
 
 }
 
