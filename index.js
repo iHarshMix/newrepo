@@ -498,7 +498,8 @@ async function sendDetailsToFirebase2(room, user1, user2) {
     };
 
     //console.log(jv);
-    const docRef = await addDoc(collection(db, "Tip", "result", room), jv);
+    const docRef = await setDoc(doc(db, "Result", room), jv);
+    //const docRef = await addDoc(collection(db, "Tip", room), jv);
     //callback(room, report, score, socket, googleid, timetaken);
 
 }
