@@ -115,6 +115,7 @@ io.on('connection', (socket) => {
 
     socket.on('update_score', (info) => {
         let report = info.report;
+        let reportPractice = info.reportPractice;
         let room = info.room;
         let google_id = info.google_id;
         let timeForSubmission = info.time;
@@ -128,52 +129,67 @@ io.on('connection', (socket) => {
         }
 
         let reportString = JSON.stringify(report);
-        if (userResult.has(room)){
-            console.log("after--------------------------------------")
-            console.log(`room ${room}`);
-            let old = userResult.get(room);
-            //console.log(old.googleid);
-            //console.log(old.time);
-            
+        let reportStringPractice = JSON.stringify(reportPractice);
+
+        if (room === "practice"){
             let user1 = {
-                "googleid" : old.googleid,
-                "time" : old.time,
-                "score" : old.score,
-                "report" : old.report,
+                "googleid" : google_id,
+                "time" : timeForSubmission,
+                "score" : score,
+                "report" : reportString,
             };
 
             let user2 = {
-                "googleid" : google_id,
-                "time" : timeForSubmission,
-                "score" : score,
-                "report" : reportString,
+                "googleid" : "na",
+                "time" : 0,
+                "score" : 0,
+                "report" : reportStringPractice,
             };
 
+            sendDetailsToFirebase2(google_id, user1, user2).then(()=>{
+                    console.log("firebase details sent");
+                });
 
-            sendDetailsToFirebase2(room, user1, user2);
-        
-            //old.socket.e('userReport', {"user1" : JSON.stringify(user1), "user2": JSON.stringify(user2)});
-            //userResult.delete(room);
-                        //io.to(room).emit( {
-           // console.log(old[0].googleid);
-            //console.log(old[0].time);
+        }else{
+            if (userResult.has(room)){
+                let old = userResult.get(room);
+       
+                let user1 = {
+                    "googleid" : old.googleid,
+                    "time" : old.time,
+                    "score" : old.score,
+                    "report" : old.report,
+                };
 
-        }else {
-            //console.log(`room ${room}`);
-            let jv = {
-                "googleid" : google_id,
-                "time" : timeForSubmission,
-                "score" : score,
-                "report" : reportString,
-            };
-            userResult.set(room, jv);
-            //console.log(userResult.get(room))
+                let user2 = {
+                    "googleid" : google_id,
+                    "time" : timeForSubmission,
+                    "score" : score,
+                    "report" : reportString,
+                };
+
+                sendDetailsToFirebase2(room, user1, user2).then(()=>{
+                    userResult.delete(room);
+                    console.log("firebase details sent");
+                });
+
+        }   else {
+            
+                let jv = {
+                    "googleid" : google_id,
+                    "time" : timeForSubmission,
+                    "score" : score,
+                    "report" : reportString,
+                };
+                userResult.set(room, jv);
+            }
         }
+        
 
         /*let reportString = JSON.stringify(report);
         sendDetailsToFirebase(room, reportString, score, timeforsubmission, google_id, socket, generateScore)
             .then(()=>{
-                console.log("firebase details sent")
+                
             });*/
 
     });
