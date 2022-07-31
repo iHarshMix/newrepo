@@ -471,7 +471,7 @@ async function updateRecord(gameStatus, userId) {
     };
 
     //await setDoc(doc(db, "History", userId), jv);
-    await addDoc(doc(db, "History", userId), recordData);
+    await addDoc(doc(db, "Users", "History", userId), recordData);
 };
 
 
