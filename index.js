@@ -378,24 +378,24 @@ function generateScore2(room, user1, user2) {
 
         if (user1score > user2score) {
             updateWinner(user1googleId, user1coin, user1ticket, user2googleId, 5, 0).then(() => {
-                updateRecord("Won", user1googleid);
-                updateRecord("Lose", user2googleid);
+                updateRecord("Won", user1googleId);
+                updateRecord("Lose", user2googleId);
             });
         } else if (user1score < user2score) {
             updateWinner(user2googleId, user2coin, user2ticket, user1googleId, 5, 0).then(() => {
-                updateRecord("Won", user2googleid);
-                updateRecord("Lose", user1googleid);
+                updateRecord("Won", user2googleId);
+                updateRecord("Lose", user1googleId);
             });
         } else {
             if (user1time < user2time) {
                 updateWinner(user1googleId, user1coin, user1ticket, user2googleId, 5, 0).then(() => {
-                    updateRecord("Won", user1googleid);
-                    updateRecord("Lose", user2googleid);
+                    updateRecord("Won", user1googleId);
+                    updateRecord("Lose", user2googleId);
                 });
             } else if (user1time > user2time) {
                 updateWinner(user2googleId, user2coin, user2ticket, user1googleId, 5, 0).then(() => {
-                    updateRecord("Won", user2googleid);
-                    updateRecord("Lose", user1googleid);
+                    updateRecord("Won", user2googleId);
+                    updateRecord("Lose", user1googleId);
                 });
             } else {
                 //updateWinner(user2googleId, user1coin, user1ticket, user1googleId, 2, 2).then(()=>{ console.log("Karma updated")});
