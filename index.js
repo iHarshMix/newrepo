@@ -56,7 +56,7 @@ io.on('connection', (socket) => {
         usersInRoom.push(user);
 
         if (usersInRoom.length === 2) {
-            addUsersToRoom().then(()=> {
+            addUsersToRoom().then(() => {
                 usersInRoom = []
                 console.log("users Added to the room")
             });
@@ -64,7 +64,7 @@ io.on('connection', (socket) => {
 
     });
 
-    socket.on("exitRoom", ()=>{
+    socket.on("exitRoom", () => {
         usersInRoom = []
     })
 
@@ -131,60 +131,62 @@ io.on('connection', (socket) => {
         let reportString = JSON.stringify(report);
         let reportStringPractice = JSON.stringify(reportPractice);
 
-        if (room === "practice"){
+        if (room === "practice") {
             let user1 = {
-                "googleid" : google_id,
-                "time" : timeForSubmission,
-                "score" : score,
-                "report" : reportString,
+                "googleid": google_id,
+                "time": timeForSubmission,
+                "score": score,
+                "report": reportString,
             };
 
             let user2 = {
-                "googleid" : "11",
-                "time" : timeForSubmission,
-                "score" : score-1,
-                "report" : reportStringPractice,
+                "googleid": "na",
+                "time": 0,
+                "score": 0,
+                "report": reportStringPractice,
             };
 
-            sendDetailsToFirebase2(google_id, user1, user2).then(()=>{
-                    console.log("firebase details sent");
-                });
+            sendDetailsToFirebase2(google_id, user1, user2, generateScore2).then(() => {
+                console.log("firebase details sent");
+                userResult.delete(room);
+                users.delete(room);
+            });
 
-        }else{
-            if (userResult.has(room)){
+        } else {
+            if (userResult.has(room)) {
                 let old = userResult.get(room);
-       
+
                 let user1 = {
-                    "googleid" : old.googleid,
-                    "time" : old.time,
-                    "score" : old.score,
-                    "report" : old.report,
+                    "googleid": old.googleid,
+                    "time": old.time,
+                    "score": old.score,
+                    "report": old.report,
                 };
 
                 let user2 = {
-                    "googleid" : google_id,
-                    "time" : timeForSubmission,
-                    "score" : score,
-                    "report" : reportString,
+                    "googleid": google_id,
+                    "time": timeForSubmission,
+                    "score": score,
+                    "report": reportString,
                 };
 
-                sendDetailsToFirebase2(room, user1, user2).then(()=>{
-                    userResult.delete(room);
+                sendDetailsToFirebase2(room, user1, user2, generateScore2).then(() => {
+                    //userResult.delete(room);
                     console.log("firebase details sent");
                 });
 
-        }   else {
-            
+            } else {
+
                 let jv = {
-                    "googleid" : google_id,
-                    "time" : timeForSubmission,
-                    "score" : score,
-                    "report" : reportString,
+                    "googleid": google_id,
+                    "time": timeForSubmission,
+                    "score": score,
+                    "report": reportString,
                 };
                 userResult.set(room, jv);
             }
         }
-        
+
 
         /*let reportString = JSON.stringify(report);
         sendDetailsToFirebase(room, reportString, score, timeforsubmission, google_id, socket, generateScore)
@@ -214,34 +216,6 @@ io.on('connection', (socket) => {
         createNewAccount(googleid);
     })
 
-    socket.on('getQuestions', ()=> {
-        let listOfQuestions = JSON.stringify(generateEasyQuestions());
-        socket.emit('practiceQuestion', {questions: listOfQuestions});
-    });
-
-    socket.on('getReport', (info)=>{
-        let reportJson = info.report1;
-        let reportJson2 = info.report2;
-        let time = info.time;
-        let userScore = info.score;
-
-        let score = 0;
-        for (let i = 0; i < reportJson.length; i++) {
-            if (reportJson[i].yourans === reportJson[i].correctans) {
-                score++;
-            }
-        }
-
-        let reportString2 = JSON.stringify(reportJson2);
-        let reportString1 = JSON.stringify(reportJson);
-        var js = {
-            "report1" : reportString1,
-            "report2" : reportString2,
-            "score" : score
-        };
-        socket.emit("userResult", js);
-
-    })
 
 });
 
@@ -252,7 +226,7 @@ server.listen(port, () => {
 //<-------------------------------------Functions are defined here--------------------------------------->
 
 
-async function addUsersToRoom(){
+async function addUsersToRoom() {
     let socket1 = usersInRoom[0].socket;
     let socket2 = usersInRoom[1].socket;
     let roomName = createUuid();
@@ -384,7 +358,153 @@ function createUuid() {
     return uuid;
 }
 
-function generateScore(room, report, score, socket, google_id, timetaken) {
+
+function generateScore2(room, user1, user2) {
+
+    if (room !== "practice") {
+        let userArray = Array.from(users.get(room));
+        // <---------------------------------User 1 details -------------------------------------->//
+        let user1score = user1.score;
+        let user1googleId = user1.googleid;
+        let user1ticket = userArray[0].userTickets;
+        let user1coin = userArray[0].userCoin;
+        let user1time = user1.time;
+        // <---------------------------------User 2 details -------------------------------------->//
+        let user2ticket = userArray[1].userTickets;
+        let user2coin = userArray[1].userCoin;
+        let user2score = user2.score;
+        let user2googleId = user2.googleid;
+        let user2time = user2.time;
+
+        if (user1score > user2score) {
+            updateWinner(user1googleId, user1coin, user1ticket, user2googleId, 5, 0).then(() => {
+                updateRecord("Won", user1googleid);
+                updateRecord("Lose", user2googleid);
+            });
+        } else if (user1score < user2score) {
+            updateWinner(user2googleId, user2coin, user2ticket, user1googleId, 5, 0).then(() => {
+                updateRecord("Won", user2googleid);
+                updateRecord("Lose", user1googleid);
+            });
+        } else {
+            if (user1time < user2time) {
+                updateWinner(user1googleId, user1coin, user1ticket, user2googleId, 5, 0).then(() => {
+                    updateRecord("Won", user1googleid);
+                    updateRecord("Lose", user2googleid);
+                });
+            } else if (user1time > user2time) {
+                updateWinner(user2googleId, user2coin, user2ticket, user1googleId, 5, 0).then(() => {
+                    updateRecord("Won", user2googleid);
+                    updateRecord("Lose", user1googleid);
+                });
+            } else {
+                //updateWinner(user2googleId, user1coin, user1ticket, user1googleId, 2, 2).then(()=>{ console.log("Karma updated")});
+            }
+        }
+    }
+
+}
+
+
+async function updateWinner(userId, currCoins, currTickets, userId2, amount1, amount2) {
+    const snap = await doc(db, "Users", userId);
+    const snap2 = await doc(db, "Users", userId2);
+
+    await updateDoc(snap, {
+        userCoins: currCoins + amount1,
+        userTickets: currTickets - 1
+    });
+
+    await updateDoc(snap2, {
+        userCoins: currCoins + amount2,
+        userTickets: currTickets - 1
+    });
+}
+
+async function updateTickets(userId, currTickets) {
+    const snapp = await doc(db, "Users", userId);
+
+    await updateDoc(snapp, {
+        userTickets: currTickets + 1
+    });
+}
+
+async function sendDetailsToFirebase(room, report, score, timetaken, googleid, socket, callback) {
+
+    let jv = {
+        "report": report,
+        "score": score,
+        "time": timetaken,
+        "googleId": googleid
+    };
+
+    //console.log(jv);
+    const docRef = await addDoc(collection(db, "Tip", "result", room), jv);
+    callback(room, report, score, socket, googleid, timetaken);
+
+}
+
+async function sendDetailsToFirebase2(room, user1, user2, callback) {
+
+    let jv = {
+        "report1": user1.report,
+        "score1": user1.score,
+        "time1": user1.time,
+        "googleId1": user1.googleid,
+        "report2": user2.report,
+        "score2": user2.score,
+        "time2": user2.time,
+        "googleId2": user2.googleid,
+    };
+
+    await setDoc(doc(db, "Result", room), jv);
+    callback(room, user1, user2);
+
+}
+
+async function updateRecord(gameStatus, userId) {
+
+    var date = new Date();
+    let recordData = {
+        status: gameStatus,
+        timestamp: date
+    };
+
+    //await setDoc(doc(db, "History", userId), jv);
+    await addDoc(doc(db, "History", userId), recordData);
+};
+
+
+/*if (isEnoughUsers()){
+
+        let socket1 = usersInRoom[0].socket;
+        let socket2 = usersInRoom[1].socket;
+        let roomName = createUuid();
+
+        socket1.join(roomName);
+        socket2.join(roomName);
+
+        users.set(roomName, usersInRoom);
+        socket1.emit('room_joined', { room : roomName, username : usersInRoom[1].userName} );
+        socket2.emit('room_joined', { room : roomName, username : usersInRoom[0].userName} );
+
+        if (usersInRoom[0].roomType === "easy"){
+            let listofquestions = JSON.stringify(generateEasyQuestions());
+            socket1.emit('questions', { questions: listofquestions} );
+            socket2.emit('questions', { questions: listofquestions} );
+            usersInRoom = [];
+        }else{
+            let listofquestions = JSON.stringify(generateHardQuestions());
+            socket1.emit('questions', { questions: listofquestions} );
+            socket2.emit('questions', { questions: listofquestions} );
+            usersInRoom = [];
+        }
+        
+    } 
+    else { socket.emit("message", { msg : "waiting for other user" }); }
+
+        
+    function generateScore(room, report, score, socket, google_id, timetaken) {
 
     if (userResult.has(room)) {
         let obj = {};
@@ -462,100 +582,7 @@ function generateScore(room, report, score, socket, google_id, timetaken) {
     }
 }
 
-async function updateWinner(userId, currCoins, currTickets, userId2, amount1, amount2) {
-    const snap = await doc(db, "Users", userId);
-    const snap2 = await doc(db, "Users", userId2);
-
-    await updateDoc(snap, {
-        userCoins: currCoins + amount1,
-        userTickets: currTickets - 1
-    });
-
-    await updateDoc(snap2, {
-        userCoins: currCoins + amount2,
-        userTickets: currTickets - 1
-    });
-}
-
-async function updateTickets(userId, currTickets) {
-    const snapp = await doc(db, "Users", userId);
-
-    await updateDoc(snapp, {
-        userTickets: currTickets + 1
-    });
-}
-
-async function sendDetailsToFirebase(room, report, score, timetaken, googleid, socket, callback) {
-
-    let jv = {
-        "report": report,
-        "score": score,
-        "time": timetaken,
-        "googleId": googleid
-    };
-
-    //console.log(jv);
-    const docRef = await addDoc(collection(db, "Tip", "result", room), jv);
-    callback(room, report, score, socket, googleid, timetaken);
-
-}
-
-async function sendDetailsToFirebase2(room, user1, user2) {
-
-    let jv = {
-        "report1": user1.report,
-        "score1": user1.score,
-        "time1": user1.time,
-        "googleId1": user1.googleid,
-        "report2": user2.report,
-        "score2": user2.score,
-        "time2": user2.time,
-        "googleId2": user2.googleid,
-    };
-
-    //console.log(jv);
-    const docRef = await setDoc(doc(db, "Result", room), jv);
-    //const docRef = await addDoc(collection(db, "Tip", room), jv);
-    //callback(room, report, score, socket, googleid, timetaken);
-
-}
-
-async function updateRecord(gameStatus, userId) {
-
-    var date = new Date();
-    let recordData = {
-        status: gameStatus,
-        timestamp: date
-    };
-    const docReff = await addDoc(collection(db, "Tip", "history", userId), recordData);
-};
 
 
-/*if (isEnoughUsers()){
-
-        let socket1 = usersInRoom[0].socket;
-        let socket2 = usersInRoom[1].socket;
-        let roomName = createUuid();
-
-        socket1.join(roomName);
-        socket2.join(roomName);
-
-        users.set(roomName, usersInRoom);
-        socket1.emit('room_joined', { room : roomName, username : usersInRoom[1].userName} );
-        socket2.emit('room_joined', { room : roomName, username : usersInRoom[0].userName} );
-
-        if (usersInRoom[0].roomType === "easy"){
-            let listofquestions = JSON.stringify(generateEasyQuestions());
-            socket1.emit('questions', { questions: listofquestions} );
-            socket2.emit('questions', { questions: listofquestions} );
-            usersInRoom = [];
-        }else{
-            let listofquestions = JSON.stringify(generateHardQuestions());
-            socket1.emit('questions', { questions: listofquestions} );
-            socket2.emit('questions', { questions: listofquestions} );
-            usersInRoom = [];
-        }
-        
-    } 
-    else { socket.emit("message", { msg : "waiting for other user" }); }*/
+    */
 
