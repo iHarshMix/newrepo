@@ -121,6 +121,9 @@ io.on('connection', (socket) => {
         let timeForSubmission = info.time;
         let userOfflineScore = info.score;
 
+        console.log("------------------------------------------");
+        console.log(`google id of user is : ${google_id}`);
+
         let score = 0;
         for (let i = 0; i < report.length; i++) {
             if (report[i].yourans === report[i].correctans) {
@@ -148,8 +151,6 @@ io.on('connection', (socket) => {
 
             sendDetailsToFirebase2(google_id, user1, user2, generateScore2).then(() => {
                 console.log("firebase details sent");
-                userResult.delete(room);
-                users.delete(room);
             });
 
         } else {
@@ -171,8 +172,9 @@ io.on('connection', (socket) => {
                 };
 
                 sendDetailsToFirebase2(room, user1, user2, generateScore2).then(() => {
-                    //userResult.delete(room);
-                    console.log("firebase details sent");
+                    userResult.delete(room);
+                    users.delete(room);
+                    console.log("firebase details end");
                 });
 
             } else {
@@ -429,21 +431,6 @@ async function updateTickets(userId, currTickets) {
     });
 }
 
-async function sendDetailsToFirebase(room, report, score, timetaken, googleid, socket, callback) {
-
-    let jv = {
-        "report": report,
-        "score": score,
-        "time": timetaken,
-        "googleId": googleid
-    };
-
-    //console.log(jv);
-    const docRef = await addDoc(collection(db, "Tip", "result", room), jv);
-    callback(room, report, score, socket, googleid, timetaken);
-
-}
-
 async function sendDetailsToFirebase2(room, user1, user2, callback) {
 
     let jv = {
@@ -586,3 +573,18 @@ async function updateRecord(gameStatus, userId) {
 
     */
 
+/*async function sendDetailsToFirebase(room, report, score, timetaken, googleid, socket, callback) {
+
+    let jv = {
+        "report": report,
+        "score": score,
+        "time": timetaken,
+        "googleId": googleid
+    };
+
+    //console.log(jv);
+    const docRef = await addDoc(collection(db, "Tip", "result", room), jv);
+    callback(room, report, score, socket, googleid, timetaken);
+
+}
+*/
