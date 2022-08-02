@@ -121,9 +121,7 @@ io.on('connection', (socket) => {
         let timeForSubmission = info.time;
         let userOfflineScore = info.score;
 
-        console.log("------------------------------------------");
-        console.log(`google id of user is : ${google_id}`);
-
+        
         let score = 0;
         for (let i = 0; i < report.length; i++) {
             if (report[i].yourans === report[i].correctans) {
@@ -154,6 +152,9 @@ io.on('connection', (socket) => {
             });
 
         } else {
+            console.log("-------------------update score second -----------------------");
+            console.log(`google id of user is : ${google_id}`);
+
             if (userResult.has(room)) {
                 let old = userResult.get(room);
 
@@ -178,6 +179,9 @@ io.on('connection', (socket) => {
                 });
 
             } else {
+
+                console.log("-------------------update score first -----------------------");
+                console.log(`google id of user is : ${google_id}`);
 
                 let jv = {
                     "googleid": google_id,
