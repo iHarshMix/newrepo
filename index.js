@@ -424,16 +424,28 @@ async function updateWinner(userId, currCoins, currTickets, userId2, amount1, am
 }
 
 async function updateTickets(userId, currTickets) {
-    const snapp = await doc(db, "Users", userId);
+    
+    try{
+        const snapp = await doc(db, "Users", userId);
 
     await updateDoc(snapp, {
         userTickets: currTickets + 1
+
     });
+
+    }catch(err){
+        console.log(err.message);
+        console.log("updateTickets error");
+    }
+
+    
 }
 
 async function sendDetailsToFirebase2(room, user1, user2, callback) {
 
-    let jv = {
+    try {
+
+        let jv = {
         "report1": user1.report,
         "score1": user1.score,
         "time1": user1.time,
@@ -442,23 +454,36 @@ async function sendDetailsToFirebase2(room, user1, user2, callback) {
         "score2": user2.score,
         "time2": user2.time,
         "googleId2": user2.googleid,
-    };
+        };
 
-    await setDoc(doc(db, "Result", room), jv);
-    callback(room, user1, user2);
+        await setDoc(doc(db, "Result", room), jv);
+        callback(room, user1, user2);
 
+
+    }catch(err){
+        console.log(err.message);
+        console.log("sendtoFirebase error");
+    }
+    
 }
 
 async function updateRecord(gameStatus, userId) {
 
-    var date = new Date();
-    let recordData = {
-        status: gameStatus,
-        timestamp: date
-    };
+    try{
+         var date = new Date();
+        let recordData = {
+            status: gameStatus,
+            timestamp: date
+        };
 
-    //await setDoc(doc(db, "History", userId), jv);
-    await addDoc(collection(db, "Users", "History", userId), recordData);
+        //await setDoc(doc(db, "History", userId), jv);
+        await addDoc(collection(db, "Users", "History", userId), recordData);
+    }catch(err){
+        //console.log(err.message);
+        console.log(err.message);
+        console.log("updateRecord error");
+    }
+   
 };
 
 
