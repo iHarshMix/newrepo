@@ -75,8 +75,7 @@ io.on('connection', (socket) => {
     socket.on("disconnecting", (reason) => {
         console.log(`reason: ${reason}`);
         let w = 0;
-        for (let i in users.keys()) {
-            //console.log(i);
+        for (let i of users.keys()) {
             let userr = Array.from(users.get(i));
             console.log(userr);
             if (socket.id === userr[0].id) {
@@ -84,7 +83,6 @@ io.on('connection', (socket) => {
                 let str = userr[0].username + "left the game and will be penalized";
                 io.to(userr[1].id).emit('message', {msg: str});
                 users.delete(i);
-    
                 break;
             } else if (socket.id === userr[1].id) {
                 console.log(`user left with users username : ${userr[1].username}`);
