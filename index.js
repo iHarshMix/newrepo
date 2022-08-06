@@ -48,6 +48,7 @@ io.on('connection', (socket) => {
         let user = {
             "socket": socket,
             "id": socket.id,
+            "googleid" : usertype.googleid,
             "userName": usertype.username,
             "userCoin": usertype.usercoins,
             "userTickets": usertype.usertickets,
@@ -74,27 +75,40 @@ io.on('connection', (socket) => {
 
     socket.on("disconnecting", (reason) => {
         console.log(`reason: ${reason}`);
-        let w = 0;
+        try{
         for (let i of users.keys()) {
             let userr = Array.from(users.get(i));
             if (socket.id === userr[0].id) {
                 console.log(`user left with users name : ${userr[0].username}`);
-                let str = userr[0].userName + "left the game and will be penalized";
+                let str = userr[0].userName + " left the game and will be penalized";
                 io.to(userr[1].id).emit('message', {msg: str});
-                users.delete(i);
-                break;
+                let googleid = userr[0].googleid;
+                let usertick = userr[0].userTickets;
+                updateTickets(googleid, usertick, "dec").then(()=>{
+                    users.delete(i);
+                    break;
+                });
+            
             } else if (socket.id === userr[1].id) {
                 console.log(`user left with users username : ${userr[1].username}`);
-                let str = userr[1].userName + "left the game and will be penalized";
+                let str = userr[1].userName + " left the game and will be penalized";
                 io.to(userr[0].id).emit('message', {msg: str});
-                users.delete(i);
-                break;
+                let googleid = userr[1].googleid;
+                let usertick = userr[1].userTickets;
+                updateTickets(googleid, usertick, "dec").then(()=>{
+                    users.delete(i);
+                    break;
+                });
+            
             } else{
                 console.log("user left but was not in room");
             }
         }
 
-    
+        }catch(err){
+            console.log(err.message);
+        }
+       
     });
 
     socket.on('checkUpdate', (info) => {
@@ -278,12 +292,13 @@ async function increaseTickets(googleid, adstatus) {
     }
 };
 
+
 async function op(googleid) {
     const tik = await getDoc(doc(db, "Users", googleid));
     let tikk = tik.data();
     let tic = tikk.userTickets;
 
-    updateTickets(googleid, tic);
+    updateTickets(googleid, tic, "inc");
     console.log("tickets Added");
 };
 
@@ -428,21 +443,21 @@ async function updateWinner(userId, currCoins, currTickets, userId2, amount1, am
     });
 }
 
-async function updateTickets(userId, currTickets) {
+async function updateTickets(userId, currTickets, type) {
     
     try{
-        const snapp = await doc(db, "Users", userId);
 
-    await updateDoc(snapp, {
-        userTickets: currTickets + 1
-
-    });
-
+        if (type === "inc"){
+            const snapp = await doc(db, "Users", userId);
+            await updateDoc(snapp, { userTickets: currTickets + 1 });
+        }else{
+            const snapp = await doc(db, "Users", userId);
+            await updateDoc(snapp, { userTickets: currTickets - 1 });
+        }
+        
     }catch(err){
         console.log(err.message);
-        console.log("updateTickets error");
     }
-
     
 }
 
