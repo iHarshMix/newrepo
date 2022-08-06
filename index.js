@@ -86,8 +86,8 @@ io.on('connection', (socket) => {
                 let usertick = userr[0].userTickets;
                 updateTickets(googleid, usertick, "dec").then(()=>{
                     users.delete(i);
-                    break;
                 });
+                break;
             
             } else if (socket.id === userr[1].id) {
                 console.log(`user left with users username : ${userr[1].username}`);
@@ -97,8 +97,8 @@ io.on('connection', (socket) => {
                 let usertick = userr[1].userTickets;
                 updateTickets(googleid, usertick, "dec").then(()=>{
                     users.delete(i);
-                    break;
                 });
+                break;
             
             } else{
                 console.log("user left but was not in room");
