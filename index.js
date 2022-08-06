@@ -463,7 +463,7 @@ async function updateKarma(userId, currKarma, amount) {
     try{
 
         const snapp = await doc(db, "Users", userId);
-        await updateDoc(snapp, { userTickets: currKarma - amount });
+        await updateDoc(snapp, { userCoins: currKarma - amount});
         /*if (type === "inc"){
             const snapp = await doc(db, "Users", userId);
             await updateDoc(snapp, { userTickets: currCoins + 1 });
