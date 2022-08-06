@@ -13,7 +13,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 const port = process.env.PORT || 3001
 
-const appversion = "2.1";
+const appversion = "2.5";
 const serverWork = false;
 
 const firebaseConfig = {
@@ -80,13 +80,15 @@ io.on('connection', (socket) => {
             let userr = Array.from(users.get(i));
             if (socket.id === userr[0].id) {
                 console.log(`user left with users name : ${userr[0].username}`);
-                io.to(userr[1].id).emit('message', "other user disconnected");
+                let str = userr[0].username + "left the game and will be penalized";
+                io.to(userr[1].id).emit('message', {msg: str});
                 users.delete(i);
                 w = 1;
                 break;
             } else {
                 console.log(`user left with users username : ${userr[1].username}`);
-                io.to(userr[0].id).emit('message', "other user disconnected");
+                let str = userr[1].username + "left the game and will be penalized";
+                io.to(userr[0].id).emit('message', {msg: str});
                 users.delete(i);
                 w = 1;
                 break;
@@ -152,10 +154,12 @@ io.on('connection', (socket) => {
             });
 
         } else {
-            console.log("-------------------update score second -----------------------");
-            console.log(`google id of user is : ${google_id}`);
 
             if (userResult.has(room)) {
+
+                console.log("-------------------update score second -----------------------");
+                console.log(`google id of user is : ${google_id}`);
+
                 let old = userResult.get(room);
 
                 let user1 = {
