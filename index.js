@@ -76,33 +76,33 @@ io.on('connection', (socket) => {
     socket.on("disconnecting", (reason) => {
         console.log(`reason: ${reason}`);
         try{
-        for (let i of users.keys()) {
-            let userr = Array.from(users.get(i));
-            if (socket.id === userr[0].id) {
-                console.log(`user left with users name : ${userr[0].username}`);
-                let str = userr[0].userName + " left the game and will be penalized";
-                io.to(userr[1].id).emit('message', {msg: str});
-                let googleid = userr[0].googleid;
-                let usertick = userr[0].userTickets;
-                updateTickets(googleid, usertick, "dec").then(()=>{
-                    users.delete(i);
-                });
-                break;
+            for (let i of users.keys()) {
+                let userr = Array.from(users.get(i));
+                if (socket.id === userr[0].id) {
+                    console.log(`user left with users name : ${userr[0].userName}`);
+                    let str = userr[0].userName + " left the game and will be penalized";
+                    io.to(userr[1].id).emit('message', {msg: str});
+                    let googleid = userr[0].googleid;
+                    let usertick = userr[0].userTickets;
+                    updateTickets(googleid, usertick, "dec").then(()=>{
+                        users.delete(i);
+                    });
+                    break;
             
-            } else if (socket.id === userr[1].id) {
-                console.log(`user left with users username : ${userr[1].username}`);
-                let str = userr[1].userName + " left the game and will be penalized";
-                io.to(userr[0].id).emit('message', {msg: str});
-                let googleid = userr[1].googleid;
-                let usertick = userr[1].userTickets;
-                updateTickets(googleid, usertick, "dec").then(()=>{
-                    users.delete(i);
-                });
-                break;
-            
-            } else{
-                console.log("user left but was not in room");
-            }
+                } else if (socket.id === userr[1].id) {
+                    console.log(`user left with users username : ${userr[1].userName}`);
+                    let str = userr[1].userName + " left the game and will be penalized";
+                    io.to(userr[0].id).emit('message', {msg: str});
+                    let googleid = userr[1].googleid;
+                    let usertick = userr[1].userTickets;
+                    updateTickets(googleid, usertick, "dec").then(()=>{
+                        users.delete(i);
+                    });
+                    break;
+                
+                } else{
+                    console.log("user left but was not in room");
+                }
         }
 
         }catch(err){
