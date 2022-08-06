@@ -227,6 +227,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('payout', (info) => {
+        console.log("payout called----------------");
         let type = info.type;
         let amount = info.amount;
         let googleid = info.googleid;
