@@ -78,26 +78,26 @@ io.on('connection', (socket) => {
         for (let i in users.keys()) {
             //console.log(i);
             let userr = Array.from(users.get(i));
+            console.log(userr);
             if (socket.id === userr[0].id) {
                 console.log(`user left with users name : ${userr[0].username}`);
                 let str = userr[0].username + "left the game and will be penalized";
                 io.to(userr[1].id).emit('message', {msg: str});
                 users.delete(i);
-                w = 1;
+    
                 break;
-            } else {
+            } else if (socket.id === userr[1].id) {
                 console.log(`user left with users username : ${userr[1].username}`);
                 let str = userr[1].username + "left the game and will be penalized";
                 io.to(userr[0].id).emit('message', {msg: str});
                 users.delete(i);
-                w = 1;
                 break;
+            } else{
+                console.log("user left but was not in room");
             }
         }
 
-        if (w === 0) {
-            usersInRoom = [];
-        }
+    
     });
 
     socket.on('checkUpdate', (info) => {
