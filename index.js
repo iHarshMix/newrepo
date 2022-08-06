@@ -284,7 +284,7 @@ async function addPayoutInfo(type, amount, googleid){
     const tik = await getDoc(doc(db, "Users", googleid));
     let tikk = tik.data();
     let tic = tikk.userCoins;
-    updateKarma(googleid, , tic, amount);
+    updateKarma(googleid, tic, amount);
     //await addDoc(collection(db, "Users", "History", userId), recordData);
 }
 
