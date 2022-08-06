@@ -44,7 +44,7 @@ let usersInRoom = [];
 io.on('connection', (socket) => {
 
     socket.on("joinRoom", (usertype) => {
-        console.log(`${usertype.username} connected`);
+        console.log(`${usertype.username} connected to the server`);
         let user = {
             "socket": socket,
             "id": socket.id,
@@ -77,16 +77,15 @@ io.on('connection', (socket) => {
         let w = 0;
         for (let i of users.keys()) {
             let userr = Array.from(users.get(i));
-            console.log(userr);
             if (socket.id === userr[0].id) {
                 console.log(`user left with users name : ${userr[0].username}`);
-                let str = userr[0].username + "left the game and will be penalized";
+                let str = userr[0].userName + "left the game and will be penalized";
                 io.to(userr[1].id).emit('message', {msg: str});
                 users.delete(i);
                 break;
             } else if (socket.id === userr[1].id) {
                 console.log(`user left with users username : ${userr[1].username}`);
-                let str = userr[1].username + "left the game and will be penalized";
+                let str = userr[1].userName + "left the game and will be penalized";
                 io.to(userr[0].id).emit('message', {msg: str});
                 users.delete(i);
                 break;
