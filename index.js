@@ -230,6 +230,10 @@ io.on('connection', (socket) => {
         let type = info.type;
         let amount = info.amount;
         let googleid = info.googleid;
+        addPayoutInfo(type, amount, googleid).then(()=>{
+            console.log("payout updated");
+        });
+
     });
 
     socket.on('newaccount', (info) => {
@@ -274,9 +278,15 @@ async function createNewAccount(googleid) {
     const docRef = await setDoc(doc(db, "Users", googleid), jv);
 }
 
-/*async function addPayoutInfo(type, amount, googleid){
-    const docref = await getDoc(doc(db, ))
-}*/
+async function addPayoutInfo(type, amount, googleid){
+    //const docref = await getDoc(doc(db, ))
+    await addDoc(doc(db, "PayoutRequest", googleid), {type : amount});
+    const tik = await getDoc(doc(db, "Users", googleid));
+    let tikk = tik.data();
+    let tic = tikk.userCoins;
+    updateKarma(googleid, , tic, amount);
+    //await addDoc(collection(db, "Users", "History", userId), recordData);
+}
 
 async function increaseTickets(googleid, adstatus) {
     const docc = await getDoc(doc(db, "WatchAds", googleid));
@@ -442,6 +452,27 @@ async function updateWinner(userId, currCoins, currTickets, userId2, amount1, am
         userTickets: currTickets - 1
     });
 }
+
+async function updateKarma(userId, currKarma, amount) {
+    
+    try{
+
+        const snapp = await doc(db, "Users", userId);
+        await updateDoc(snapp, { userTickets: currKarma - amount });
+        /*if (type === "inc"){
+            const snapp = await doc(db, "Users", userId);
+            await updateDoc(snapp, { userTickets: currCoins + 1 });
+        }else{
+            const snapp = await doc(db, "Users", userId);
+            await updateDoc(snapp, { userTickets: currCoins - 1 });
+        }*/
+        
+    }catch(err){
+        console.log(err.message);
+    }
+    
+}
+
 
 async function updateTickets(userId, currTickets, type) {
     
