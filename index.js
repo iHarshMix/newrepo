@@ -281,7 +281,11 @@ async function createNewAccount(googleid) {
 
 async function addPayoutInfo(type, amount, googleid){
     //const docref = await getDoc(doc(db, ))
-    await addDoc(doc(db, "PayoutRequest", googleid), {type : amount});
+    let jv = {
+        "googleid" : googleid, 
+        type : amount 
+    };
+    await addDoc(collection(db, "PayoutRequest"), jv);
     const tik = await getDoc(doc(db, "Users", googleid));
     let tikk = tik.data();
     let tic = tikk.userCoins;
