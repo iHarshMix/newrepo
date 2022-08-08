@@ -66,8 +66,9 @@ io.on('connection', (socket) => {
     });
 
     socket.on("exitRoom", () => {
+        console.log("room exited");
         usersInRoom = []
-    })
+    });
 
     socket.on('message_other', (msg, room) => {
         io.to(room).emit("message", msg);
