@@ -54,7 +54,22 @@ io.on('connection', (socket) => {
             "userTickets": usertype.usertickets,
         };
 
-        usersInRoom.push(user);
+        if (usersInRoom.length > 0){
+            let previousUser = usersInRoom[0];
+            if (previousUser.id === socket.id){
+                console.log("need other user");
+            }else{
+                usersInRoom.push(user);
+                addUsersToRoom().then(() => {
+                usersInRoom = [];
+                console.log("users Added to the room");
+            });
+            }
+        }else{
+            usersInRoom.push(user);
+        }
+
+       /*  usersInRoom.push(user);
 
         if (usersInRoom.length === 2) {
             addUsersToRoom().then(() => {
@@ -62,7 +77,7 @@ io.on('connection', (socket) => {
                 console.log("users Added to the room")
             });
         }
-
+       */
     });
 
     socket.on("exitRoom", () => {
@@ -241,7 +256,17 @@ io.on('connection', (socket) => {
     socket.on('newaccount', (info) => {
         let googleid = info.googleid;
         createNewAccount(googleid);
-    })
+    });
+
+    socket.on('dailyReward', (info)=>{
+        let googleid = info.googleid;
+        isAvailable(googleid);
+        //if (current date - infodate == 1) -> give tickets;
+        //  var ticks = [2, 2, 2, 2, 3, 3, 3, 4, 4, 5];
+        //  var tickAmount = quetype[Math.floor(Math.random() * 10)];
+        //  
+        //else you have already recived
+    });
 
 
 });
@@ -251,7 +276,12 @@ server.listen(port, () => {
 });
 
 //<-------------------------------------Functions are defined here--------------------------------------->
-
+async function isAvailable(googleid){
+    const tik = await getDoc(doc(db, "Users", googleid));
+    let tikk = tik.data();
+    let tic = tikk.rewardTime;
+    console.log(tic);
+}
 
 async function addUsersToRoom() {
     let socket1 = usersInRoom[0].socket;
@@ -271,10 +301,13 @@ async function addUsersToRoom() {
 }
 
 async function createNewAccount(googleid) {
+    var date = new Date();
     let jv = {
         "userCoins": 20,
         "userTickets": 3,
-        "googleId": googleid
+        "googleId": googleid,
+        "rewardTime" : date
+
     };
 
     const docRef = await setDoc(doc(db, "Users", googleid), jv);
