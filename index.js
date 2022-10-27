@@ -260,7 +260,10 @@ io.on('connection', (socket) => {
 
     socket.on('dailyReward', (info)=>{
         let googleid = info.googleid;
-        isAvailable(googleid);
+        
+        let aa = isAvailable(googleid);
+        console.log(aa);
+
         //if (current date - infodate == 1) -> give tickets;
         //  var ticks = [2, 2, 2, 2, 3, 3, 3, 4, 4, 5];
         //  var tickAmount = quetype[Math.floor(Math.random() * 10)];
@@ -279,9 +282,14 @@ server.listen(port, () => {
 async function isAvailable(googleid){
     const tik = await getDoc(doc(db, "Users", googleid));
     let tikk = tik.data();
-    let tic = tikk.rewardTime;
-    var d = new Date(tic);
-    console.log(d);
+    //let ts_old = tikk.rewardTime;
+    let ts_diff = Date.now() - tikk.rewardTime;
+    
+    if (ts_diff >= 24){
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 async function addUsersToRoom() {
@@ -302,12 +310,12 @@ async function addUsersToRoom() {
 }
 
 async function createNewAccount(googleid) {
-    var date = new Date();
+    let timestamp = Date.now();
     let jv = {
         "userCoins": 20,
         "userTickets": 3,
         "googleId": googleid,
-        "rewardTime" : date
+        "rewardTime" : timestamp
 
     };
 
