@@ -280,7 +280,8 @@ async function isAvailable(googleid){
     const tik = await getDoc(doc(db, "Users", googleid));
     let tikk = tik.data();
     let tic = tikk.rewardTime;
-    console.log(tic);
+    var d = new Date(tic);
+    console.log(d);
 }
 
 async function addUsersToRoom() {
