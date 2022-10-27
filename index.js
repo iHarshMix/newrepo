@@ -261,9 +261,8 @@ io.on('connection', (socket) => {
     socket.on('dailyReward', (info)=>{
         let googleid = info.googleid;
         
-        let aa = isAvailable(googleid);
-        console.log(aa);
-
+        isAvailable(googleid);
+    
         //if (current date - infodate == 1) -> give tickets;
         //  var ticks = [2, 2, 2, 2, 3, 3, 3, 4, 4, 5];
         //  var tickAmount = quetype[Math.floor(Math.random() * 10)];
@@ -286,9 +285,9 @@ async function isAvailable(googleid){
     let ts_diff = Date.now() - tikk.rewardTime;
     
     if (ts_diff >= 24){
-        return 1;
+        console.log("1");
     } else {
-        return 0;
+        console.log("0");
     }
 }
 
