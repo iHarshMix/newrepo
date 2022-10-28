@@ -291,10 +291,26 @@ async function isAvailable(googleid, socket){
     } else {
         var quetype = [2, 2, 2, 2, 3, 3, 3, 4, 4, 5];
         var tickAmount = quetype[Math.floor(Math.random() * 10)];
-        console.log(tickAmount);
-        socket.emit('reward', {val : tickAmount});
+        
+        updateReward(googleid, new_date).then(()=>{
+            socket.emit('reward', {val : tickAmount});
+            console.log("time updated");
+        });
+    
     }
 }
+
+async function updateReward(userId, day){
+    try {
+         
+        const snapp = await doc(db, "Users", userId);
+        await updateDoc(snapp, { rewardTime: day });
+    
+    }
+    catch(err){
+        console.log(err.message);
+    }
+};
 
 async function addUsersToRoom() {
     let socket1 = usersInRoom[0].socket;
