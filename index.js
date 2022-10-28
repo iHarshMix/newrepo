@@ -361,16 +361,16 @@ async function checkforDocument(googleid) {
             console.log("no ads remaining for user");
         }
         else{
-            updateAds(adsRem-1, userTick + 1, new_date);
+            updateAds(adsRem-1, userTick + 1, new_date, googleid);
         }
     }else{
-        updateAds(4, userTick, new_date).then(()=>{
+        updateAds(4, userTick, new_date, googleid).then(()=>{
             console.log("ads initialized for today");
         })
     }
 }
 
-async function updateAds(ads, tick, day){
+async function updateAds(ads, tick, day, userId){
     try { 
         const snapp = await doc(db, "Users", userId);
         await updateDoc(snapp, { AdsRemaining: ads , userTickets : tick, rewardAdTime : day});
