@@ -319,7 +319,7 @@ async function createNewAccount(googleid) {
         "userCoins": 20,
         "userTickets": 3,
         "googleId": googleid,
-        "rewardTime" : d.getDate();
+        "rewardTime" : d.getDate()
     };
 
     const docRef = await setDoc(doc(db, "Users", googleid), jv);
