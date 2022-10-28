@@ -227,8 +227,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('watchAds', (info)=>{
-        let googleid = userInfo.googleid;
-        let adstatus = userInfo.status;
+        let googleid = info.googleid;
+        let adstatus = info.status;
         //console.log("watch ads called");
         checkforDocument(googleid).then(() => {
             console.log("ads update succesful");
