@@ -261,8 +261,7 @@ io.on('connection', (socket) => {
     socket.on('dailyReward', (info)=>{
         let googleid = info.googleid;
         
-        let aa = isAvailable(googleid);
-        console.log(aa);
+        isAvailable(googleid);
     
         //if (current date - infodate == 1) -> give tickets;
         //  var ticks = [2, 2, 2, 2, 3, 3, 3, 4, 4, 5];
@@ -279,7 +278,7 @@ server.listen(port, () => {
 });
 
 //<-------------------------------------Functions are defined here--------------------------------------->
-async function isAvailable(googleid){
+async function isAvailable(googleid, socket){
     const tik = await getDoc(doc(db, "Users", googleid));
     let tikk = tik.data();
     let old_date = tikk.rewardTime;
@@ -287,9 +286,13 @@ async function isAvailable(googleid){
     let new_date = d.getDate();
     
     if (new_date - old_date === 0){
-        return await 1;
+        socket.emit('reward', {val : 0});
+        console.log("zero baby");
     } else {
-        return await 0;
+        var quetype = [2, 2, 2, 2, 3, 3, 3, 4, 4, 5];
+        var tickAmount = quetype[Math.floor(Math.random() * 10)];
+        console.log(tickAmount);
+        socket.emit('reward', {val : tickAmount});
     }
 }
 
