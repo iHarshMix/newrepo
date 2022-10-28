@@ -224,23 +224,22 @@ io.on('connection', (socket) => {
             }
         }
 
+    });
 
-        /*let reportString = JSON.stringify(report);
-        sendDetailsToFirebase(room, reportString, score, timeforsubmission, google_id, socket, generateScore)
-            .then(()=>{
-                
-            });*/
+    socket.on('WatchAds', (info)=>{
+        let googleid = userInfo.googleid;
+        let adstatus = userInfo.status;
 
     });
 
-    socket.on('watchAds', (userInfo) => {
+    /*socket.on('watchAds', (userInfo) => {
         let googleid = userInfo.googleid;
         let adstatus = userInfo.status;
 
         checkforDocument(googleid).then(() => {
             increaseTickets(googleid, adstatus);
         });
-    });
+    });*/
 
     socket.on('payout', (info) => {
         console.log("payout called----------------");
@@ -260,14 +259,7 @@ io.on('connection', (socket) => {
 
     socket.on('dailyReward', (info)=>{
         let googleid = info.googleid;
-        
         isAvailable(googleid, socket);
-    
-        //if (current date - infodate == 1) -> give tickets;
-        //  var ticks = [2, 2, 2, 2, 3, 3, 3, 4, 4, 5];
-        //  var tickAmount = quetype[Math.floor(Math.random() * 10)];
-        //  
-        //else you have already recived
     });
 
 
@@ -336,14 +328,15 @@ async function createNewAccount(googleid) {
         "userCoins": 20,
         "userTickets": 3,
         "googleId": googleid,
-        "rewardTime" : d.getDate()
+        "rewardTime" : d.getDate()-1,
+        "AdsRemaining" : 5,
+        "rewardAdTime" : d.getDate()-1
     };
 
     const docRef = await setDoc(doc(db, "Users", googleid), jv);
 }
 
 async function addPayoutInfo(type, amount, googleid){
-    //const docref = await getDoc(doc(db, ))
     let jv = {
         "googleid" : googleid, 
         type : amount 
@@ -356,42 +349,41 @@ async function addPayoutInfo(type, amount, googleid){
     //await addDoc(collection(db, "Users", "History", userId), recordData);
 }
 
-async function increaseTickets(googleid, adstatus) {
-    const docc = await getDoc(doc(db, "WatchAds", googleid));
-    let stu = docc.data();
-    let adsRemain = stu.AdsRemaining;
-    if (adsRemain === 0) {
-        console.log("no ads AdsRemaining");
-    } else {
-        if (adstatus === "full") {
-            op(googleid);
-            decreaseAds(googleid, adsRemain);
-        }
-    }
-};
-
-
-async function op(googleid) {
-    const tik = await getDoc(doc(db, "Users", googleid));
-    let tikk = tik.data();
-    let tic = tikk.userTickets;
-
-    updateTickets(googleid, tic, "inc");
-    console.log("tickets Added");
-};
 
 async function checkforDocument(googleid) {
-    const adsRem = await getDoc(doc(db, "WatchAds", googleid));
-    if (!adsRem.exists()) {
-        let jj = {"AdsRemaining": 5};
-        const setAds = await setDoc(doc(db, "WatchAds", googleid), jj);
+    const user = await getDoc(doc(db, "Users", googleid));
+    let userInfo = user.data();
+    let old_date = userInfo.rewardAdTime;
+    let adsRem = userInfo.AdsRemaining;
+    let userTick = userInfo.userTickets;
+    let d = new Date();
+    let new_date = d.getDate();
+   
+    if (new_date - old_date === 0) {
+        if (adsRem === 0){
+            console.log("no ads remaining for user");
+        }
+        else{
+            updateAds(adsRem-1, userTick + 1, new_date);
+        }
+    }else{
+        updateAds(4, userTick, new_date).then(()=>{
+            console.log("ads initialized for today");
+        })
     }
 }
 
-async function decreaseAds(googleid, adRem) {
-    let jj = {"AdsRemaining": adRem - 1};
-    const setAds = await setDoc(doc(db, "WatchAds", googleid), jj);
+async function updateAds(ads, tick, day){
+    try { 
+        const snapp = await doc(db, "Users", userId);
+        await updateDoc(snapp, { AdsRemaining: ads , userTickets : tick, rewardAdTime : day});
+    }
+    catch(err){
+        console.log(err.message);
+    }
 }
+
+
 
 function generateEasyQuestions() {
     let questions = {};
@@ -606,7 +598,37 @@ async function updateRecord(gameStatus, userId) {
 };
 
 
-/*if (isEnoughUsers()){
+/*
+
+async function op(googleid) {
+    const tik = await getDoc(doc(db, "Users", googleid));
+    let tikk = tik.data();
+    let tic = tikk.userTickets;
+
+    updateTickets(googleid, tic, "inc");
+    console.log("tickets Added");
+};
+
+async function increaseTickets(googleid, adstatus) {
+    const docc = await getDoc(doc(db, "WatchAds", googleid));
+    let stu = docc.data();
+    let adsRemain = stu.AdsRemaining;
+    if (adsRemain === 0) {
+        console.log("no ads AdsRemaining");
+    } else {
+        if (adstatus === "full") {
+            op(googleid);
+            decreaseAds(googleid, adsRemain);
+        }
+    }
+};
+
+async function decreaseAds(googleid, adRem) {
+    let jj = {"AdsRemaining": adRem - 1};
+    const setAds = await setDoc(doc(db, "WatchAds", googleid), jj);
+}
+
+if (isEnoughUsers()){
 
         let socket1 = usersInRoom[0].socket;
         let socket2 = usersInRoom[1].socket;
