@@ -261,7 +261,7 @@ io.on('connection', (socket) => {
     socket.on('dailyReward', (info)=>{
         let googleid = info.googleid;
         
-        isAvailable(googleid);
+        isAvailable(googleid, socket);
     
         //if (current date - infodate == 1) -> give tickets;
         //  var ticks = [2, 2, 2, 2, 3, 3, 3, 4, 4, 5];
