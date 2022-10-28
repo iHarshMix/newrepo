@@ -281,6 +281,7 @@ server.listen(port, () => {
 async function isAvailable(googleid, socket){
     const tik = await getDoc(doc(db, "Users", googleid));
     let tikk = tik.data();
+    let userTick = tikk.userTickets;
     let old_date = tikk.rewardTime;
     let d = new Date();
     let new_date = d.getDate();
@@ -291,8 +292,8 @@ async function isAvailable(googleid, socket){
     } else {
         var quetype = [2, 2, 2, 2, 3, 3, 3, 4, 4, 5];
         var tickAmount = quetype[Math.floor(Math.random() * 10)];
-        
-        updateReward(googleid, new_date).then(()=>{
+        userTick += tickAmount
+        updateReward(googleid, new_date, userTick).then(()=>{
             socket.emit('reward', {val : tickAmount});
             console.log("time updated");
         });
@@ -300,11 +301,11 @@ async function isAvailable(googleid, socket){
     }
 }
 
-async function updateReward(userId, day){
+async function updateReward(userId, day, tick){
     try {
          
         const snapp = await doc(db, "Users", userId);
-        await updateDoc(snapp, { rewardTime: day });
+        await updateDoc(snapp, { rewardTime: day , userTickets : tick});
     
     }
     catch(err){
