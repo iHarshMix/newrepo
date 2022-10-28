@@ -226,24 +226,17 @@ io.on('connection', (socket) => {
 
     });
 
-    socket.on('WatchAds', (info)=>{
+    socket.on('watchAds', (info)=>{
         let googleid = userInfo.googleid;
         let adstatus = userInfo.status;
-        console.log("watch ads called");
+        //console.log("watch ads called");
         checkforDocument(googleid).then(() => {
             console.log("ads update succesful");
         });
 
     });
 
-    /*socket.on('watchAds', (userInfo) => {
-        let googleid = userInfo.googleid;
-        let adstatus = userInfo.status;
-
-        checkforDocument(googleid).then(() => {
-            increaseTickets(googleid, adstatus);
-        });
-    });*/
+  
 
     socket.on('payout', (info) => {
         console.log("payout called----------------");
