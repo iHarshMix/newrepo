@@ -384,7 +384,7 @@ async function updateAds(ads, tick, day, userId){
 
 function generateEasyQuestions() {
     let questions = {};
-    for (let sno = 1; sno <= 5; sno++) {
+    for (let sno = 1; sno <= 10; sno++) {
 
         var quetype = [0, 1];
         var que = quetype[Math.floor(Math.random() * 2)];
