@@ -323,7 +323,7 @@ async function createNewAccount(googleid) {
     let d = new Date();
     let jv = {
         "userCoins": 20,
-        "userTickets": 3,
+        "userTickets": 5,
         "googleId": googleid,
         "rewardTime" : d.getDate()-1,
         "AdsRemaining" : 5,
@@ -364,7 +364,7 @@ async function checkforDocument(googleid) {
             updateAds(adsRem-1, userTick + 1, new_date, googleid);
         }
     }else{
-        updateAds(4, userTick, new_date, googleid).then(()=>{
+        updateAds(4, userTick + 1, new_date, googleid).then(()=>{
             console.log("ads initialized for today");
         })
     }
