@@ -230,33 +230,59 @@ io.on('connection', (socket) => {
         let googleid = info.googleid;
         let adstatus = info.status;
         //console.log("watch ads called");
-        checkforDocument(googleid).then(() => {
+
+        try {
+            checkforDocument(googleid).then(() => {
             console.log("ads update succesful");
-        });
+            });
+        }
+        catch(err){
+            console.log(err.message);
+        }
+
 
     });
 
   
 
     socket.on('payout', (info) => {
-        console.log("payout called----------------");
-        let type = info.type;
-        let amount = info.amount;
-        let googleid = info.googleid;
-        addPayoutInfo(type, amount, googleid).then(()=>{
-            console.log("payout updated");
-        });
+        try {
+
+            console.log("payout called----------------");
+            let type = info.type;
+            let amount = info.amount;
+            let googleid = info.googleid;
+            addPayoutInfo(type, amount, googleid).then(()=>{
+                console.log("payout updated");
+            });
+
+        }
+        catch(err){
+            console.log(err.message);
+        }
 
     });
 
     socket.on('newaccount', (info) => {
-        let googleid = info.googleid;
-        createNewAccount(googleid);
+        
+        try {
+            let googleid = info.googleid;
+            createNewAccount(googleid);
+        }
+        catch(err){
+            console.log(err.message);
+        }
     });
 
     socket.on('dailyReward', (info)=>{
         let googleid = info.googleid;
-        isAvailable(googleid, socket);
+        try {
+            isAvailable(googleid, socket);
+        }
+        catch(err){
+            console.log(err.message);
+        }
+        
     });
 
 
