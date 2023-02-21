@@ -2,81 +2,82 @@
 <html>
   <head>
     <title>MathQue Server</title>
-    <style>
-      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-
-      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
-      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
-      #input:focus { outline: none; }
-      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
-
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages > li { padding: 0.5rem 1rem; }
-      #messages > li:nth-child(odd) { background: #efefef; }
-
-
-    </style>
-  </head>
+  </head> 
   <body>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
+   
+    <p id="info" align="right">This is info text</p>
+
+    <p id="que" align=""></p>
+
     <script src="/socket.io/socket.io.js"></script>
 <script>
   var socket = io();
   var myJoinedRoom = "";
 
 
+  var info = document.getElementById('info');
+  var que = document.getElementById('que');
+
   socket.on("message", msg =>{
     alert(`message recived ${msg}`);
   })
-
+/*
   var form = document.getElementById('form');
-  var input = document.getElementById('input');
+  var input = document.getElementById('input');*/
 
-  socket.on("connect", ()=> {
-    alert(`connected with id ${socket.id}`);
+  socket.on("connect", ()=> { 
 
-  /*let reportJson = 
-  [
-    { "userans" : 23, "correctans" : 23 },
-    { "userans" : 2, "correctans" : 54 },
-    { "userans" : 235, "correctans" : 253 },
-    { "userans" : 232, "correctans" : 232 },
-    { "userans" : 213, "correctans" : 231 },
-  ];
+    var idarray = ["adg53", "45dfl", "30fmi"];
+    var ran = Math.floor(Math.random()*idarray.length);
+    socket.emit("user_connect", {"googleId" : idarray[ran]});
 
-
-  let nn = Math.floor((Math.random() * 100) + 1);
-  socket.emit('update_score', reportJson, "2451", nn.toString());*/
-
-  //socket.emit('get_result', "2451");
-
-    socket.emit("joinRoom", { "type" : "easy", "username" : "Robo", "usercoins": 32, "usertickets" : 12});
-
+    var textArray = ['robo','puneet', 'aakash', 'aman', 'azreel', 'riya', 'iris', 'aashi', 'tarru'];
+    var randomNumber = Math.floor(Math.random()*textArray.length);
   });
 
-  socket.on('questions', (ques)=>{ alert(`questions reviced: ${ques} `); });
 
-  socket.on('room_joined', (room)=>{ myJoinedRoom = room.room; alert(`connected to user ${room.room}`);
-     
+  socket.on('user_created', (arg)=>{
+    console.log(arg);
+    que.innerHTML = arg;
+    socket.emit("join_game");
+  })
+
+  socket.on('current_users', (arg)=>{
+    setText(`users online: ${arg}`);
+  });
+
+
+  socket.on('error', (arg)=>{
+    alert(`${arg} left the game`);
+  });
+
+  socket.on('questions', (ques)=> { 
+    alert(`questions reviced: ${ques} `);
+    //socket.emit('evaluate', );
    });
-  
 
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-        
-    if (myJoinedRoom === -1){
-        alert(`you havent joined any room`);
-    }else{
-        socket.emit('message_other', input.value, myJoinedRoom);
-        input.value = '';
+  socket.on('room_joined', (arg)=> { 
+
+    alert(`joined room with id : ${arg["room"]} ` );
+    
+    var queAns = {
+      "1": { "equation" : '11 + 40 = ', "solution": 51 , "userAns" : 51, "googleId" : "1234"},
+      "2": { "equation" : '10 + 30 = ', "solution": 40 , "userAns" : 40, "googleId" : "1234"},
+      "3": { "equation" : '20 + 20 = ', "solution": 40 , "userAns" : 20, "googleId" : "1234" },
+      "4": { "equation" : '1 + 4 = ', "solution": 5, "userAns" : 4, "googleId" : "1234"},
+      "5": { "equation" : '8 + 9 = ', "solution": 17, "userAns" : 17, "googleId" : "1234" }
+    };
+
+    socket.emit('gen_result', {"room" : arg["room"], "queAns" : queAns});
+    
+   });
+
+    function setText(txt){
+      info.innerHTML = txt;
     }
-
-  });
-
+  
 
 </script>
   </body>
 </html>
+

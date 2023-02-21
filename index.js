@@ -1,33 +1,13 @@
-import path from 'path'
+import path, { win32 } from 'path'
 import express from 'express'
 import http from 'http'
-import {initializeApp} from "firebase/app";
-import {getFirestore, collection, getDoc, doc, updateDoc, addDoc, setDoc} from "firebase/firestore";
 import {Server} from "socket.io";
-//import { getAuth } from 'firebase/auth';
-//import {version} from 'os';
-
+import { create_user, user_game_win, user_game_lost, user_game_exited } from "./config.js";
 const __dirname = path.resolve();
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 const port = process.env.PORT || 3001
-
-const appversion = "2.5";
-const serverWork = false;
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDFW0W_yhlyKusYRW8xwNtIZqhiJxQZVp8",
-    authDomain: "robo-mathque.firebaseapp.com",
-    projectId: "robo-mathque",
-    storageBucket: "robo-mathque.appspot.com",
-    messagingSenderId: "869425345296",
-    appId: "1:869425345296:web:9ac3b6e1349c2732bf6b95",
-    measurementId: "G-EE2VXEQXHM"
-};
-
-const app2 = initializeApp(firebaseConfig);
-const db = getFirestore(app2);
 
 
 app.get('/', (req, res) => {
@@ -35,588 +15,335 @@ app.get('/', (req, res) => {
 });
 
 
-let users = new Map();
-let userResult = new Map();
-//let userWatchAds = new Map();
-//let userResult = [];
-let usersInRoom = [];
+const appversion = "2.5";
+const serverWork = false;
+
+let waitingUsers = new Map();
+let usersInGame = new Map();
+let socketToId = new Map()        //map for storing socket id with google ids 
+let currentUsers = new Map();
+let userAnswers = new Map();
+let userResults = new Map();
+
 
 io.on('connection', (socket) => {
 
-    socket.on("joinRoom", (usertype) => {
-        console.log(`${usertype.username} connected to the server`);
-        let user = {
-            "socket": socket,
-            "id": socket.id,
-            "googleid" : usertype.googleid,
-            "userName": usertype.username,
-            "userCoin": usertype.usercoins,
-            "userTickets": usertype.usertickets,
-        };
+//------------------------------------- Check Update Or Server Maintainence ----------------------------------------//
+socket.on('check_update', (info)=>{
+    let version = info.version;
+    if (serverWork) {
+        socket.emit('update', { "error": "Server Maintenance"}); /////////Error->
+    } else if (appversion !== version) {
+        socket.emit('update', {"error": "Updare Available"});  /////////Error->
+    } else {
+        socket.emit('update', {"error": "Everything Fine "});  /////////Error->
+    }
+});
 
-        if (usersInRoom.length > 0){
-            let previousUser = usersInRoom[0];
-            if (previousUser.id === socket.id){
-                console.log("need other user");
-            }else{
-                usersInRoom.push(user);
-                addUsersToRoom().then(() => {
-                usersInRoom = [];
-                console.log("users Added to the room");
-            });
-            }
+
+//------------------------------------- User Connects To The Server ------------------------------------------------//
+    socket.on('user_connect', (data)=>{
+        var user = create_user(data.googleId);
+
+        user.then((userData)=> { 
+            //currentUsers.set(socket.id, userData); 
+            currentUsers.set(data.googleId, userData);
+            socketToId.set(socket.id, data.googleId);
+            socket.emit('user_created', getUserData(data.googleId));
+
+        });
+     
+    });
+
+//------------------------------------- User Wants To Join Online Game ---------------------------------------------//
+    socket.on('join_game', ()=> {
+        let googleId = socketToId.get(socket.id);
+        //var user_data = currentUsers.get(socket.id);
+        var user_data = currentUsers.get(googleId);
+        if (user_data){
+            let user = {
+                "socket" : socket,
+                "googleId" : user_data["googleId"],
+                "userName" : user_data["userName"],
+                "type" : "real",
+                "userTickets" : user_data["userTickets"],
+                "userCoin" : user_data["userCoin"]
+            };
+            //waitingUsers.set(socket.id, user);
+            waitingUsers.set(googleId, user);
+
         }else{
-            usersInRoom.push(user);
-        }
-
-       /*  usersInRoom.push(user);
-
-        if (usersInRoom.length === 2) {
-            addUsersToRoom().then(() => {
-                usersInRoom = []
-                console.log("users Added to the room")
-            });
-        }
-       */
-    });
-
-    socket.on("exitRoom", () => {
-        console.log("room exited");
-        usersInRoom = []
-    });
-
-    socket.on('message_other', (msg, room) => {
-        io.to(room).emit("message", msg);
-    });
-
-    socket.on("disconnecting", (reason) => {
-        console.log(`reason: ${reason}`);
-        try{
-            for (let i of users.keys()) {
-                let userr = Array.from(users.get(i));
-                if (socket.id === userr[0].id) {
-                    console.log(`user left with users name : ${userr[0].userName}`);
-                    let str = userr[0].userName + " left the game and will be penalized";
-                    io.to(userr[1].id).emit('message', {msg: str});
-                    let googleid = userr[0].googleid;
-                    let usertick = userr[0].userTickets;
-                    updateTickets(googleid, usertick, "dec").then(()=>{
-                        users.delete(i);
-                    });
-                    break;
-            
-                } else if (socket.id === userr[1].id) {
-                    console.log(`user left with users username : ${userr[1].userName}`);
-                    let str = userr[1].userName + " left the game and will be penalized";
-                    io.to(userr[0].id).emit('message', {msg: str});
-                    let googleid = userr[1].googleid;
-                    let usertick = userr[1].userTickets;
-                    updateTickets(googleid, usertick, "dec").then(()=>{
-                        users.delete(i);
-                    });
-                    break;
-                
-                } else{
-                    console.log("user left but was not in room");
-                }
-        }
-
-        }catch(err){
-            console.log(err.message);
+            console.log("no such user") /////////Error->
         }
        
     });
 
-    socket.on('checkUpdate', (info) => {
-        let version = info.version;
-        if (serverWork) {
-            socket.emit('update', {msg: "Server Maintenance!! \n \n Please wait some server work needs to be done"});
-        } else if (appversion !== version) {
-            socket.emit('update', {msg: "Updare Available!! \n \n Please update your app to continue"});
-        } else {
-            socket.emit('noupdate');
+
+//------------------------------------- User Exits A Game ------------------------------------------------//
+    socket.on('exit_game', (room) => {
+        if (usersInGame.delete(room)){
+            console.log("users removed");
+        }else{
+            console.log("users already removed");
         }
     });
 
-    socket.on('disconnect', () => {
-        console.log(`user disconnected`);
+
+//------------------------------------- Generate User Result ---------------------------------------------//
+    socket.on('gen_result', async (data) =>{
+        //console.log(data["room"]);
+        //console.log(data["queAns"]);
+        let room = data["room"];
+        let sol = data["queAns"];
+        if (userAnswers.has(room)){
+            let prevsol = userAnswers.get(room);
+            let res = result(sol, prevsol, room);
+            res.then(()=>{
+                console.log("result generated");
+                userAnswers.delete(room);
+            })
+            .catch(err => { console.log(err); })
+        }else{
+            userAnswers.set(room, sol);
+        }
+
     });
 
-    socket.on('update_score', (info) => {
-        let report = info.report;
-        let reportPractice = info.reportPractice;
-        let room = info.room;
-        let google_id = info.google_id;
-        let timeForSubmission = info.time;
-        let userOfflineScore = info.score;
+//------------------------------------- User Retrieve Result ------------------------------------------------//
+    socket.on("user_result", (room)=>{
+        let res = getMatchResult(room);
+        if (res == null){
+            socket.emit('user_result', "not yet generated");
+        }else{
+            socket.emit('user_result', res);
+        }
+    })
 
-        
-        let score = 0;
-        for (let i = 0; i < report.length; i++) {
-            if (report[i].yourans === report[i].correctans) {
-                score++;
+
+//------------------------------------- User Exits The Server ------------------------------------------------//
+    socket.on("disconnecting", ()=>{
+    
+        let googleId = socketToId.get(socket.id);
+        currentUsers.delete(googleId);
+        if (!waitingUsers.delete(googleId)) {
+            let found = false;
+            for (let [room, users] of usersInGame.entries()){
+                if (users[0].googleId === googleId){
+                    io.to(room).emit('error', users[0].name);
+                    usersInGame.delete(room);
+                    found = true;
+                    // give penalty to user
+                    break;
+                }
+
+                if (users[1].googleId === googleId){
+                    io.to(room).emit('error', users[1].name);
+                    usersInGame.delete(room);
+                    found = true;
+                    // give penalty to user
+                    break;
+                }
+                
             }
-        }
 
-        let reportString = JSON.stringify(report);
-        let reportStringPractice = JSON.stringify(reportPractice);
-
-        if (room === "practice") {
-            let user1 = {
-                "googleid": google_id,
-                "time": timeForSubmission,
-                "score": score,
-                "report": reportString,
-            };
-
-            let user2 = {
-                "googleid": "na",
-                "time": 0,
-                "score": 0,
-                "report": reportStringPractice,
-            };
-
-            sendDetailsToFirebase2(google_id, user1, user2, generateScore2).then(() => {
-                console.log("firebase details sent");
-            });
-
-        } else {
-
-            if (userResult.has(room)) {
-
-                console.log("-------------------update score second -----------------------");
-                console.log(`google id of user is : ${google_id}`);
-
-                let old = userResult.get(room);
-
-                let user1 = {
-                    "googleid": old.googleid,
-                    "time": old.time,
-                    "score": old.score,
-                    "report": old.report,
-                };
-
-                let user2 = {
-                    "googleid": google_id,
-                    "time": timeForSubmission,
-                    "score": score,
-                    "report": reportString,
-                };
-
-                sendDetailsToFirebase2(room, user1, user2, generateScore2).then(() => {
-                    userResult.delete(room);
-                    users.delete(room);
-                    console.log("firebase details end");
-                });
-
-            } else {
-
-                console.log("-------------------update score first -----------------------");
-                console.log(`google id of user is : ${google_id}`);
-
-                let jv = {
-                    "googleid": google_id,
-                    "time": timeForSubmission,
-                    "score": score,
-                    "report": reportString,
-                };
-                userResult.set(room, jv);
-            }
         }
 
     });
-
-    socket.on('watchAds', (info)=>{
-        let googleid = info.googleid;
-        let adstatus = info.status;
-        //console.log("watch ads called");
-
-        try {
-            checkforDocument(googleid).then(() => {
-            console.log("ads update succesful");
-            });
-        }
-        catch(err){
-            console.log(err.message);
-        }
-
-
-    });
-
-  
-
-    socket.on('payout', (info) => {
-        try {
-
-            console.log("payout called----------------");
-            let type = info.type;
-            let amount = info.amount;
-            let googleid = info.googleid;
-            addPayoutInfo(type, amount, googleid).then(()=>{
-                console.log("payout updated");
-            });
-
-        }
-        catch(err){
-            console.log(err.message);
-        }
-
-    });
-
-    socket.on('newaccount', (info) => {
-        
-        try {
-            let googleid = info.googleid;
-            createNewAccount(googleid);
-        }
-        catch(err){
-            console.log(err.message);
-        }
-    });
-
-    socket.on('dailyReward', (info)=>{
-        let googleid = info.googleid;
-        try {
-            isAvailable(googleid, socket);
-        }
-        catch(err){
-            console.log(err.message);
-        }
-        
-    });
-
 
 });
+
+
+setInterval(begin, 5000);
 
 server.listen(port, () => {
     console.log('listening on *:', port);
 });
 
-//<-------------------------------------Functions are defined here--------------------------------------->
-async function isAvailable(googleid, socket){
-    const tik = await getDoc(doc(db, "Users", googleid));
-    let tikk = tik.data();
-    let userTick = tikk.userTickets;
-    let old_date = tikk.rewardTime;
-    let d = new Date();
-    let new_date = d.getDate();
-    
-    if (new_date - old_date === 0){
-        socket.emit('reward', {val : 0});
-        console.log("zero baby");
-    } else {
-        var quetype = [2, 2, 2, 2, 3, 3, 3, 4, 4, 5];
-        var tickAmount = quetype[Math.floor(Math.random() * 10)];
-        userTick += tickAmount
-        updateReward(googleid, new_date, userTick).then(()=>{
-            socket.emit('reward', {val : tickAmount});
-            console.log("time updated");
-        });
-    
+
+
+//----------------------------------------------------FUNCTIONS-------------------------------------------------------------//
+
+async function result(sol1, sol2, room){
+    let crct1 = 0, crct2 = 0;
+    let gId1 = "", gId2 = "";
+    for (const que in sol1){
+        let uR = sol1[que];
+        gId1 = uR.googleId;
+        if (uR.solution === uR.userAns){
+            crct1++;
+        }
     }
-}
 
-async function updateReward(userId, day, tick){
-    try {
-         
-        const snapp = await doc(db, "Users", userId);
-        await updateDoc(snapp, { rewardTime: day , userTickets : tick});
+    for (const que in sol2){
+        let uR2 = sol2[que];
+        gId2 = uR2.googleId;
+        if (uR2.solution === uR2.userAns){
+            crct2++;
+        }
+    }
+
+    let winId = crct1 >= crct2 ? gId1 : gId2;
+    let loseId = crct1 >= crct2 ? gId2 : gId1;
+
+    console.log(winId);
     
+
+    let winData = currentUsers.get(winId);
+    let loseData = currentUsers.get(loseId);
+    /*let winUserTickets = winData["userTickets"];
+    let winUserCoins = winData["userCoins"];
+    let loseUserTickets = winData["userTickets"];*/
+
+
+    let resRoom = {
+        "winId" : winId,
+        "loseId" : loseId,
+        "winRes" : sol1,
+        "loseRes" : sol2
     }
-    catch(err){
-        console.log(err.message);
-    }
-};
 
-async function addUsersToRoom() {
-    let socket1 = usersInRoom[0].socket;
-    let socket2 = usersInRoom[1].socket;
-    let roomName = createUuid();
+    //console.log(winUserCoins);
+    //console.log(loseUserTickets);
 
-    users.set(roomName, usersInRoom);
-    socket1.join(roomName);
-    socket2.join(roomName);
+    console.log(winData);
+    console.log(loseData);
 
-    socket1.emit('room_joined', {room: roomName, username: usersInRoom[1].userName});
-    socket2.emit('room_joined', {room: roomName, username: usersInRoom[0].userName});
+    //await user_game_win(winId, winUserCoins,winUserTickets);
+    //await user_game_lost(loseId, loseUserTickets);
+    userResults.set(room, resRoom);
 
-    let listOfQuestions = JSON.stringify(generateEasyQuestions());
-    await socket1.emit('questions', {questions: listOfQuestions});
-    await socket2.emit('questions', {questions: listOfQuestions});
 }
 
-async function createNewAccount(googleid) {
-    let d = new Date();
-    let jv = {
-        "userCoins": 20,
-        "userTickets": 5,
-        "googleId": googleid,
-        "rewardTime" : d.getDate()-1,
-        "AdsRemaining" : 5,
-        "rewardAdTime" : d.getDate()-1
-    };
+async function begin() {
 
-    const docRef = await setDoc(doc(db, "Users", googleid), jv);
-}
+    io.sockets.emit('current_users', getLiveUsers());
+    console.log(`current users: ${getLiveUsers()}`);
+    pairUsers().then((res)=>{
+        if (res){
+            console.log("not enough users");
+        }else{
+            console.log("some error");
+        }
+    });
 
-async function addPayoutInfo(type, amount, googleid){
-    let jv = {
-        "googleid" : googleid, 
-        type : amount 
-    };
-    await addDoc(collection(db, "PayoutRequest"), jv);
-    const tik = await getDoc(doc(db, "Users", googleid));
-    let tikk = tik.data();
-    let tic = tikk.userCoins;
-    updateKarma(googleid, tic, amount);
-    //await addDoc(collection(db, "Users", "History", userId), recordData);
 }
 
 
-async function checkforDocument(googleid) {
-    const user = await getDoc(doc(db, "Users", googleid));
-    let userInfo = user.data();
-    let old_date = userInfo.rewardAdTime;
-    let adsRem = userInfo.AdsRemaining;
-    let userTick = userInfo.userTickets;
-    let d = new Date();
-    let new_date = d.getDate();
+async function pairUsers() {
+    
+    try{
+        if (waitingUsers.size >= 2){
+            let room =  await getRoom();
+            console.log(room);
+            let id1 = getRandomUser();
+            let user1 = waitingUsers.get(id1);
+            user1.socket.join(room);
+            waitingUsers.delete(id1);
+            
+            
+            let id2 = getRandomUser();                   
+            let user2 = waitingUsers.get(id2);
+            user2.socket.join(room);
+            waitingUsers.delete(id2);
+
+            usersInGame.set(room, [user1, user2]);
+
+            var que = await generateEasyQuestions();
+            io.to(room).emit("room_joined", { "room" : room, "questions" : que }); 
    
-    if (new_date - old_date === 0) {
-        if (adsRem === 0){
-            console.log("no ads remaining for user");
+            return await pairUsers();
         }
         else{
-            updateAds(adsRem-1, userTick + 1, new_date, googleid);
+           return true;
         }
-    }else{
-        updateAds(4, userTick + 1, new_date, googleid).then(()=>{
-            console.log("ads initialized for today");
-        })
-    }
-}
 
-async function updateAds(ads, tick, day, userId){
-    try { 
-        const snapp = await doc(db, "Users", userId);
-        await updateDoc(snapp, { AdsRemaining: ads , userTickets : tick, rewardAdTime : day});
+    }catch (err){
+        console.log(err);
+        return false;
     }
-    catch(err){
-        console.log(err.message);
-    }
+    
 }
 
 
+function getRandomUser(){
+    let val = waitingUsers.keys().next().value;
+    return val;
+};
 
-function generateEasyQuestions() {
+function getLiveUsers(){
+    return currentUsers.size;
+}
+
+async function getRoom() {
+    let room = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < 5) {
+      room += characters.charAt(Math.floor(Math.random() * charactersLength));
+      counter += 1;
+    }
+    return room;
+    
+}
+
+async function generateEasyQuestions() {
     let questions = {};
-    for (let sno = 1; sno <= 10; sno++) {
+    for (let sno = 1; sno <= 5; sno++) {
 
-        var quetype = [0, 1];
-        var que = quetype[Math.floor(Math.random() * 2)];
+        var num1 = Math.floor((Math.random() * 100) + 1);
+        var num2 = Math.floor((Math.random() * 100) + 1);
+        var equation = num1.toString() + " + " + num2.toString() + " = ";
+        var solution = num1 + num2;
+        var question = {
+            "equation": equation,
+            "solution": solution
+        };
 
-        if (que === 0) {
-
-            let num1 = Math.floor((Math.random() * 100) + 1);
-            let num2 = Math.floor((Math.random() * 100) + 1);
-            var equation = num1.toString() + " + " + num2.toString() + " = ";
-            let solution = num1 + num2;
-            var question = {
-
-                "firstValue": equation,
-                "solution": solution
-            };
-
-            questions[sno.toString()] = question;
-        } else {
-
-            var sequence = ["+", "*"];
-            var series = sequence[Math.floor(Math.random() * 2)];
-            var startNum = Math.floor(Math.random() * 10) + 1;
-            var multiplier = Math.floor(Math.random() * 5) + 2;
-
-            if (series === "+") {
-                var equation = startNum.toString() + ", " + (startNum + multiplier).toString() + ", " + (startNum + 2 * multiplier).toString() + " ...";
-                let solution = startNum + 3 * multiplier;
-                var question = {
-
-                    "firstValue": equation,
-                    "solution": solution
-                };
-
-                questions[sno.toString()] = question;
-            } else {
-                var equation = startNum.toString() + ", " + (startNum * multiplier).toString() + ", " + (startNum * multiplier * multiplier).toString() + " ...";
-                let solution = startNum * multiplier * multiplier * multiplier;
-                var question = {
-
-                    "firstValue": equation,
-                    "solution": solution
-                };
-
-                questions[sno.toString()] = question;
-            }
-
-        }
+        questions[sno.toString()] = question
 
     }
+
     return questions;
 }
 
-function createUuid() {
-    var dt = new Date().getTime();
-    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = (dt + Math.random() * 16) % 16 | 0;
-        dt = Math.floor(dt / 16);
-        return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    });
-    return uuid;
+function getMatchResult(room){
+    return userResults.get(room);
+}
+
+function getUserData(id){
+    return currentUsers.get(id);
 }
 
 
-function generateScore2(room, user1, user2) {
+//-------------------------------------garbage code-------------------------------------------------//
+  //resetTime--;
+    //if (resetTime === 0){
 
-    if (room !== "practice") {
-        let userArray = Array.from(users.get(room));
-        // <---------------------------------User 1 details -------------------------------------->//
-        let user1score = user1.score;
-        let user1googleId = user1.googleid;
-        let user1ticket = userArray[0].userTickets;
-        let user1coin = userArray[0].userCoin;
-        let user1time = user1.time;
-        // <---------------------------------User 2 details -------------------------------------->//
-        let user2ticket = userArray[1].userTickets;
-        let user2coin = userArray[1].userCoin;
-        let user2score = user2.score;
-        let user2googleId = user2.googleid;
-        let user2time = user2.time;
-
-        if (user1score > user2score) {
-            updateWinner(user1googleId, user1coin, user1ticket, user2googleId, 5, 0).then(() => {
-                updateRecord("Won", user1googleId);
-                updateRecord("Lose", user2googleId);
-            });
-        } else if (user1score < user2score) {
-            updateWinner(user2googleId, user2coin, user2ticket, user1googleId, 5, 0).then(() => {
-                updateRecord("Won", user2googleId);
-                updateRecord("Lose", user1googleId);
-            });
-        } else {
-            if (user1time < user2time) {
-                updateWinner(user1googleId, user1coin, user1ticket, user2googleId, 5, 0).then(() => {
-                    updateRecord("Won", user1googleId);
-                    updateRecord("Lose", user2googleId);
-                });
-            } else if (user1time > user2time) {
-                updateWinner(user2googleId, user2coin, user2ticket, user1googleId, 5, 0).then(() => {
-                    updateRecord("Won", user2googleId);
-                    updateRecord("Lose", user1googleId);
-                });
-            } else {
-                //updateWinner(user2googleId, user1coin, user1ticket, user1googleId, 2, 2).then(()=>{ console.log("Karma updated")});
-            }
-        }
-    }
-
-}
-
-
-async function updateWinner(userId, currCoins, currTickets, userId2, amount1, amount2) {
-    const snap = await doc(db, "Users", userId);
-    const snap2 = await doc(db, "Users", userId2);
-
-    await updateDoc(snap, {
-        userCoins: currCoins + amount1,
-        userTickets: currTickets - 1
-    });
-
-    await updateDoc(snap2, {
-        userCoins: currCoins + amount2,
-        userTickets: currTickets - 1
-    });
-}
-
-async function updateKarma(userId, currKarma, amount) {
-    
-    try{
-
-        const snapp = await doc(db, "Users", userId);
-        await updateDoc(snapp, { userCoins: currKarma - amount});
-        /*if (type === "inc"){
-            const snapp = await doc(db, "Users", userId);
-            await updateDoc(snapp, { userTickets: currCoins + 1 });
-        }else{
-            const snapp = await doc(db, "Users", userId);
-            await updateDoc(snapp, { userTickets: currCoins - 1 });
+       
+        /*else{
+            console.log(`not enough users`);
+            let user = {
+                "socket": null,
+                "id": null,
+                "name" : "bot",
+                "type" : "bot"
+            };
+            //pairUsers();
+           // console.log(`added bot\nno. of users : ${waitingUsers.length}`);
         }*/
-        
-    }catch(err){
-        console.log(err.message);
-    }
-    
-}
+     //   resetTime = 5;
+    //}
 
-
-async function updateTickets(userId, currTickets, type) {
-    
-    try{
-
-        if (type === "inc"){
-            const snapp = await doc(db, "Users", userId);
-            await updateDoc(snapp, { userTickets: currTickets + 1 });
-        }else{
-            const snapp = await doc(db, "Users", userId);
-            await updateDoc(snapp, { userTickets: currTickets - 1 });
-        }
-        
-    }catch(err){
-        console.log(err.message);
-    }
-    
-}
-
-async function sendDetailsToFirebase2(room, user1, user2, callback) {
-
-    try {
-
-        let jv = {
-        "report1": user1.report,
-        "score1": user1.score,
-        "time1": user1.time,
-        "googleId1": user1.googleid,
-        "report2": user2.report,
-        "score2": user2.score,
-        "time2": user2.time,
-        "googleId2": user2.googleid,
-        };
-
-        await setDoc(doc(db, "Result", room), jv);
-        callback(room, user1, user2);
-
-
-    }catch(err){
-        console.log(err.message);
-        console.log("sendtoFirebase error");
-    }
-    
-}
-
-async function updateRecord(gameStatus, userId) {
-
-    try{
-         var date = new Date();
-        let recordData = {
-            status: gameStatus,
-            timestamp: date
-        };
-
-        //await setDoc(doc(db, "History", userId), jv);
-        await addDoc(collection(db, "Users", "History", userId), recordData);
-    }catch(err){
-        //console.log(err.message);
-        console.log(err.message);
-        console.log("updateRecord error");
-    }
-   
-};
-
+  /*let cnt = 3;
+    while (cnt > 0) {
+            console.log(`size is : ${waitingUsers.size}`);
+            if (waitingUsers.size >= 2){
+                pairUsers();
+            }else{
+                console.log("not enough users");
+                break;
+            }
+            
+            cnt--;
+        }*/
