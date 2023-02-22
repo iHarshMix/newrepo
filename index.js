@@ -32,18 +32,18 @@ io.on('connection', (socket) => {
 socket.on('check_update', (info)=>{
     let version = info.version;
     if (serverWork) {
-        socket.emit('update', { "error": "Server Maintenance"}); /////////Error->
+        socket.emit('update', { "error": "001"}); ////////Server Maintenance /Error->
     } else if (appversion !== version) {
-        socket.emit('update', {"error": "Updare Available"});  /////////Error->
+        socket.emit('update', {"error": "002"});  /////////Updare Available Error->
     } else {
-        socket.emit('update', {"error": "Everything Fine "});  /////////Error->
+        socket.emit('update', {"error": "003"});  /////////Everything Fine  Error->
     }
 });
 
 
 //------------------------------------- User Connects To The Server ------------------------------------------------//
     socket.on('user_connect', (data)=>{
-        var user = create_user(data.googleId);
+        var user = create_user(data.googleId, data.name);
 
         user.then((userData)=> { 
             //currentUsers.set(socket.id, userData); 

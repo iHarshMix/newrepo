@@ -15,12 +15,12 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 
-export async function create_user(id){
+export async function create_user(id, name){
 	const docSnap = await getDoc(doc(db, "Users", id));
   if (docSnap.exists()){
     return docSnap.data();
   }else{
-    var user = { "googleId" : id, "userCoin" : 120, "userName" :"bobo", "userTickets" : 6 };
+    var user = { "googleId" : id, "userCoin" : 20, "userName" : name, "userTickets" : 3 };
     newUser(id, user);
     return user;
   }
