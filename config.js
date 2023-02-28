@@ -18,11 +18,11 @@ const db = getFirestore(app);
 export async function create_user(id, name){
 	const docSnap = await getDoc(doc(db, "Users", id));
   if (docSnap.exists()){
-    return docSnap.data();
+    return [docSnap.data(), false];
   }else{
     var user = { "googleId" : id, "userCoin" : 20, "userName" : name, "userTickets" : 3 };
     newUser(id, user);
-    return user;
+    return [user, true];
   }
 	
 }

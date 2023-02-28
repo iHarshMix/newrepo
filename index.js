@@ -45,11 +45,12 @@ socket.on('check_update', (info)=>{
     socket.on('user_connect', (data)=>{
         var user = create_user(data.googleId, data.name);
 
-        user.then((userData)=> { 
+        user.then(([userData, isNewUser])=> { 
+
             //currentUsers.set(socket.id, userData); 
             currentUsers.set(data.googleId, userData);
             socketToId.set(socket.id, data.googleId);
-            socket.emit('user_created', getUserData(data.googleId));
+            socket.emit('user_created', { "userData" : getUserData(data.googleId) , "isNewUser" : isNewUser });
 
         });
      
@@ -117,6 +118,13 @@ socket.on('check_update', (info)=>{
         }else{
             socket.emit('user_result', res);
         }
+    })
+
+//------------------------------------- Retrieve User Data ------------------------------------------------//
+    socket.on("get_data", (data)=>{
+        let googleId = data.googleId;
+        let userData = currentUsers.get(googleId);
+        socket.emit("user_data", userData);
     })
 
 
