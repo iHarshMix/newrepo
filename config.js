@@ -21,7 +21,7 @@ export async function create_user(id, name){
     return [docSnap.data(), false];
   }else{
     var user = { "googleId" : id, "userCoin" : 20, "userName" : name, "userTickets" : 3 };
-    newUser(id, user);
+    await newUser(id, user);
     return [user, true];
   }
 	

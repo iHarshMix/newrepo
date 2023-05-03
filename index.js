@@ -3,6 +3,7 @@ import express from 'express'
 import http from 'http'
 import {Server} from "socket.io";
 import { create_user, user_game_win, user_game_lost, user_game_exited } from "./config.js";
+import { error } from 'console';
 const __dirname = path.resolve();
 const app = express();
 const server = http.createServer(app);
@@ -28,7 +29,7 @@ let userResults = new Map();
 
 io.on('connection', (socket) => {
 
-//------------------------------------- Check Update Or Server Maintainence ----------------------------------------//
+//-------------------------------------1. Check Update Or Server Maintainence ----------------------------------------//
 socket.on('check_update', (info)=>{
     let version = info.version;
     if (serverWork) {
@@ -41,18 +42,17 @@ socket.on('check_update', (info)=>{
 });
 
 
-//------------------------------------- User Connects To The Server ------------------------------------------------//
+//-------------------------------------2. User Connects To The Server ------------------------------------------------//
     socket.on('user_connect', (data)=>{
-        var user = create_user(data.googleId, data.name);
-
+        const user = create_user(data.googleId, data.name);
         user.then(([userData, isNewUser])=> { 
-
             //currentUsers.set(socket.id, userData); 
             currentUsers.set(data.googleId, userData);
             socketToId.set(socket.id, data.googleId);
             socket.emit('user_created', { "userData" : getUserData(data.googleId) , "isNewUser" : isNewUser });
 
-        });
+        }).catch(err => { throw err; })
+        
      
     });
 
