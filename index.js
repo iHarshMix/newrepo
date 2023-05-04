@@ -18,14 +18,14 @@ app.get('/', (req, res) => {
 
 const appversion = "2.5";
 const serverWork = false;
-const currentInterval = 0;
+let currentInterval = 0;
 
-let waitingUsers = new Map();
-let usersInGame = new Map();
-let socketToId = new Map()        //map for storing socket id with google ids 
-let currentUsers = new Map();
-let userAnswers = new Map();
-let userResults = new Map();
+const waitingUsers = new Map();
+const usersInGame = new Map();
+const socketToId = new Map()        //map for storing socket id with google ids 
+const currentUsers = new Map();
+const userAnswers = new Map();
+const userResults = new Map();
 
 
 io.on('connection', (socket) => {
