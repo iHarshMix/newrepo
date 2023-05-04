@@ -18,6 +18,7 @@ app.get('/', (req, res) => {
 
 const appversion = "2.5";
 const serverWork = false;
+const currentInterval = 0;
 
 let waitingUsers = new Map();
 let usersInGame = new Map();
@@ -59,7 +60,6 @@ socket.on('check_update', (info)=>{
 //------------------------------------- User Wants To Join Online Game ---------------------------------------------//
     socket.on('join_game', ()=> {
         let googleId = socketToId.get(socket.id);
-        //var user_data = currentUsers.get(socket.id);
         var user_data = currentUsers.get(googleId);
         if (user_data){
             let user = {
@@ -70,19 +70,29 @@ socket.on('check_update', (info)=>{
                 "userTickets" : user_data["userTickets"],
                 "userCoin" : user_data["userCoin"]
             };
-            //waitingUsers.set(socket.id, user);
+            
             waitingUsers.set(googleId, user);
-
         }else{
             console.log("no such user") /////////Error->
         }
        
     });
 
+//------------------------- User Wants to Exit MatchMaking---------------------------------------//
+    socket.on("exit_room", ()=> {
+        let googleId = socketToId.get(socket.id);
+        if ( currentInterval <= 3 ) {
+            waitingUsers.delete(googleId);
+            socket.emit("exitRoom", {"error" : "004"}); // can exit room
+        } else {
+            socket.emit("exitRoom", {"error" : "005"}); // cannot exit 
+        }
+    });
+
 
 //------------------------------------- User Exits A Game ------------------------------------------------//
-    socket.on('exit_game', (room) => {
-        if (usersInGame.delete(room)){
+    socket.on('exit_game', (room) =>  {
+        if (usersInGame.delete(room)) {
             console.log("users removed");
         }else{
             console.log("users already removed");
@@ -110,6 +120,7 @@ socket.on('check_update', (info)=>{
 
     });
 
+ 
 //------------------------------------- User Retrieve Result ------------------------------------------------//
     socket.on("user_result", (room)=>{
         let res = getMatchResult(room);
@@ -129,8 +140,9 @@ socket.on('check_update', (info)=>{
 
 
 //------------------------------------- User Exits The Server ------------------------------------------------//
-    socket.on("disconnecting", ()=>{
+    socket.on("disconnecting", (reason) => {
     
+        console.log(`user exited for reason ${reason}`);
         let googleId = socketToId.get(socket.id);
         currentUsers.delete(googleId);
         if (!waitingUsers.delete(googleId)) {
@@ -224,6 +236,10 @@ async function result(sol1, sol2, room){
 
 async function begin() {
 
+    currentInterval += 1;
+
+    console.log(`current interval is: ${currentInterval}`);
+
     io.sockets.emit('current_users', getLiveUsers());
     console.log(`current users: ${getLiveUsers()}`);
     pairUsers().then((res)=>{
@@ -234,6 +250,10 @@ async function begin() {
         }
     });
 
+    if ( currentInterval >= 5 ) {
+        currentInterval === 0;
+    }
+
 }
 
 
@@ -241,21 +261,26 @@ async function pairUsers() {
     
     try{
         if (waitingUsers.size >= 2){
+
+            //generate random room id
             let room =  await getRoom();
-            console.log(room);
-            let id1 = getRandomUser();
+
+            //get random first user
+            let id1 = await getRandomUser();
             let user1 = waitingUsers.get(id1);
             user1.socket.join(room);
             waitingUsers.delete(id1);
             
-            
-            let id2 = getRandomUser();                   
+            //get random second user
+            let id2 = await getRandomUser();                   
             let user2 = waitingUsers.get(id2);
             user2.socket.join(room);
             waitingUsers.delete(id2);
 
+            //adding both users to userInGame room
             usersInGame.set(room, [user1, user2]);
 
+            //generating questions
             var que = await generateEasyQuestions();
             io.to(room).emit("room_joined", { "room" : room, "questions" : que }); 
    
@@ -273,7 +298,7 @@ async function pairUsers() {
 }
 
 
-function getRandomUser(){
+async function getRandomUser(){
     let val = waitingUsers.keys().next().value;
     return val;
 };
