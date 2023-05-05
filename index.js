@@ -47,7 +47,8 @@ socket.on('check_update', (info)=>{
         
         if ( currentUsers.has(data.googleId) ) {
             console.log(`user already in the room`);
-            return currentUsers.get(data.googleId);
+            socket.emit('user_created', { "userData" : getUserData(data.googleId) , "isNewUser" : false });
+            return;
         }
 
         const user = create_user(data.googleId, data.name);
