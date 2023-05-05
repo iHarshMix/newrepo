@@ -18,7 +18,6 @@ app.get('/', (req, res) => {
 
 const appversion = "2.5";
 const serverWork = false;
-let currentInterval = 0;
 
 const waitingUsers = new Map();
 const usersInGame = new Map();
@@ -44,7 +43,13 @@ socket.on('check_update', (info)=>{
 
 
 //-------------------------------------2. User Connects To The Server ------------------------------------------------//
-    socket.on('user_connect', (data)=>{
+    socket.on('user_connect', (data)=> {
+        
+        if ( currentUsers.has(data.googleId) ) {
+            console.log(`user already in the room`);
+            return currentUsers.get(data.googleId);
+        }
+
         const user = create_user(data.googleId, data.name);
         user.then(([userData, isNewUser])=> { 
             //currentUsers.set(socket.id, userData); 
@@ -79,7 +84,7 @@ socket.on('check_update', (info)=>{
     });
 
 //------------------------- User Wants to Exit MatchMaking---------------------------------------//
-    socket.on("exit_room", ()=> {
+/*    socket.on("exit_room", ()=> {
         let googleId = socketToId.get(socket.id);
         if ( currentInterval <= 3 ) {
             waitingUsers.delete(googleId);
@@ -87,7 +92,7 @@ socket.on('check_update', (info)=>{
         } else {
             socket.emit("exitRoom", {"error" : "005"}); // cannot exit 
         }
-    });
+    });*/
 
 
 //------------------------------------- User Exits A Game ------------------------------------------------//
@@ -251,7 +256,7 @@ async function begin() {
     });
 
     if ( currentInterval >= 5 ) {
-        currentInterval === 0;
+        currentInterval = 0;
     }
 
 }
