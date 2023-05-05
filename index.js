@@ -51,6 +51,7 @@ socket.on('check_update', (info)=>{
             return;
         }
 
+        console.log("here i am");
         const user = create_user(data.googleId, data.name);
         user.then(([userData, isNewUser])=> { 
             //currentUsers.set(socket.id, userData); 
