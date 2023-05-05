@@ -242,9 +242,7 @@ async function result(sol1, sol2, room){
 
 async function begin() {
 
-    currentInterval += 1;
 
-    console.log(`current interval is: ${currentInterval}`);
 
     io.sockets.emit('current_users', getLiveUsers());
     console.log(`current users: ${getLiveUsers()}`);
@@ -255,10 +253,6 @@ async function begin() {
             console.log("some error");
         }
     });
-
-    if ( currentInterval >= 5 ) {
-        currentInterval = 0;
-    }
 
 }
 
