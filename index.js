@@ -51,7 +51,7 @@ socket.on('check_update', (info)=>{
             return;
         }
 
-        console.log("here i am");
+        //console.log("here i am");
         const user = create_user(data.googleId, data.name);
         user.then(([userData, isNewUser])=> { 
             //currentUsers.set(socket.id, userData); 
@@ -86,16 +86,18 @@ socket.on('check_update', (info)=>{
     });
 
 //------------------------- User Wants to Exit MatchMaking---------------------------------------//
-/*    socket.on("exit_room", ()=> {
+    socket.on("exit_room", ()=> {
         let googleId = socketToId.get(socket.id);
-        if ( currentInterval <= 3 ) {
+        try{
             waitingUsers.delete(googleId);
+            console.log(`${googleId.userName} removed from waiting user`);
             socket.emit("exitRoom", {"error" : "004"}); // can exit room
-        } else {
+        }catch(err){
+            console.log(err);
             socket.emit("exitRoom", {"error" : "005"}); // cannot exit 
         }
-    });*/
-
+        
+    });
 
 //------------------------------------- User Exits A Game ------------------------------------------------//
     socket.on('exit_game', (room) =>  {
@@ -242,8 +244,6 @@ async function result(sol1, sol2, room){
 }
 
 async function begin() {
-
-
 
     io.sockets.emit('current_users', getLiveUsers());
     console.log(`current users: ${getLiveUsers()}`);
