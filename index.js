@@ -18,6 +18,7 @@ app.get('/', (req, res) => {
 
 const appversion = "2.5";
 const serverWork = false;
+let isPairingUser = false;
 
 const waitingUsers = new Map();
 const usersInGame = new Map();
@@ -25,6 +26,7 @@ const socketToId = new Map()        //map for storing socket id with google ids
 const currentUsers = new Map();
 const userAnswers = new Map();
 const userResults = new Map();
+
 
 
 io.on('connection', (socket) => {
@@ -89,12 +91,21 @@ socket.on('check_update', (info)=>{
     socket.on("exit_room", ()=> {
         let googleId = socketToId.get(socket.id);
         try{
-            waitingUsers.delete(googleId);
-            console.log(`${googleId.userName} removed from waiting user`);
-            socket.emit("exitRoom", {"error" : "004"}); // can exit room
+
+            if ( isPairingUser ){
+                socket.emit("exitRoom", {"error" : "005"}); // cannot exit 
+            }
+            else if (!waitingUsers.has(googleId) ) {
+                socket.emit("exitRoom", {"error" : "005"}); // cannot exit 
+            }else{
+                
+                waitingUsers.delete(googleId);
+                console.log(`${googleId} removed from waiting user`);
+                socket.emit("exitRoom", {"error" : "004"}); // can exit room
+            }    
+            
         }catch(err){
             console.log(err);
-            socket.emit("exitRoom", {"error" : "005"}); // cannot exit 
         }
         
     });
@@ -249,8 +260,10 @@ async function begin() {
     console.log(`current users: ${getLiveUsers()}`);
     pairUsers().then((res)=>{
         if (res){
+            isPairingUser = false;
             console.log("not enough users");
         }else{
+            isPairingUser = false;
             console.log("some error");
         }
     });
@@ -259,7 +272,7 @@ async function begin() {
 
 
 async function pairUsers() {
-    
+    isPairingUser = true;
     try{
         if (waitingUsers.size >= 2){
 
