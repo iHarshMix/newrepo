@@ -139,7 +139,8 @@ socket.on('check_update', (info)=>{
 
  
 //------------------------------------- User Retrieve Result ------------------------------------------------//
-    socket.on("user_result", async (room)=>{
+    socket.on("user_result", async (data)=>{
+        let room = data["room"];
         let res = await getMatchResult(room);
         if (res == null){
             socket.emit('userResult', {"result" : "006"});
