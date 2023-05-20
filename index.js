@@ -128,7 +128,7 @@ socket.on('check_update', (info)=>{
         let sol = data["queAns"];
         if (userAnswers.has(room)){
             let prevsol = userAnswers.get(room);
-            let res = result(sol, prevsol, room);
+            let res = await result(sol, prevsol, room);
             res.then(()=>{
                 console.log("result generated");
                 userAnswers.delete(room);
@@ -142,12 +142,12 @@ socket.on('check_update', (info)=>{
 
  
 //------------------------------------- User Retrieve Result ------------------------------------------------//
-    socket.on("user_result", (room)=>{
-        let res = getMatchResult(room);
+    socket.on("user_result", async (room)=>{
+        let res = await getMatchResult(room);
         if (res == null){
-            socket.emit('user_result', "not yet generated");
+            socket.emit('userResult', {"result" : "006"});
         }else{
-            socket.emit('user_result', res);
+            socket.emit('userResult', {"result" : res});
         }
     })
 
@@ -334,7 +334,7 @@ async function getRoom() {
     
 }
 
-function getMatchResult(room){
+async function getMatchResult(room){
     return userResults.get(room);
 }
 
