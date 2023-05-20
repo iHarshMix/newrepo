@@ -2,8 +2,8 @@ import path, { win32 } from 'path'
 import express from 'express'
 import http from 'http'
 import {Server} from "socket.io";
+import { generateQuestion } from './quizGenerator.js';
 import { create_user, user_game_win, user_game_lost, user_game_exited } from "./config.js";
-import { error } from 'console';
 const __dirname = path.resolve();
 const app = express();
 const server = http.createServer(app);
@@ -295,7 +295,7 @@ async function pairUsers() {
             usersInGame.set(room, [user1, user2]);
 
             //generating questions
-            var que = await generateEasyQuestions();
+            var que = await generateQuestion();
             io.to(room).emit("room_joined", { "room" : room, "questions" : que }); 
    
             return await pairUsers();
@@ -332,26 +332,6 @@ async function getRoom() {
     }
     return room;
     
-}
-
-async function generateEasyQuestions() {
-    let questions = {};
-    for (let sno = 1; sno <= 5; sno++) {
-
-        var num1 = Math.floor((Math.random() * 100) + 1);
-        var num2 = Math.floor((Math.random() * 100) + 1);
-        var equation = num1.toString() + " + " + num2.toString() + " = ";
-        var solution = num1 + num2;
-        var question = {
-            "equation": equation,
-            "solution": solution
-        };
-
-        questions[sno.toString()] = question
-
-    }
-
-    return questions;
 }
 
 function getMatchResult(room){
