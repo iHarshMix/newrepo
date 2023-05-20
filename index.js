@@ -296,7 +296,7 @@ async function pairUsers() {
 
             //generating questions
             var que = await generateQuestion();
-            io.to(room).emit("room_joined", { "room" : room, "questions" : que }); 
+            io.to(room).emit("room_joined", { "room" : room, "que" : que }); 
    
             return await pairUsers();
         }
