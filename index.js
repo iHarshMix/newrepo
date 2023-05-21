@@ -112,25 +112,26 @@ socket.on('check_update', (info)=>{
 
 //------------------------------------- User Exits A Game ------------------------------------------------//
     socket.on('exit_game', (room) =>  {
+        
         if (usersInGame.delete(room)) {
-            console.log("users removed");
+            socket.emit("exitGame", {"error" : "007"}); // User Removed From Game
         }else{
-            console.log("users already removed");
+            socket.emit("exitGame", {"error" : "008"}); // User Wasn't In the Game
+            
         }
     });
 
 
 //------------------------------------- Generate User Result ---------------------------------------------//
     socket.on('gen_result', async (data) =>{
-        //console.log(data["room"]);
-        //console.log(data["queAns"]);
+ 
         let room = data["room"];
         let sol = data["queAns"];
         if (userAnswers.has(room)){
             let prevsol = userAnswers.get(room);
             let res = await result(sol, prevsol, room);
             console.log("result generated");
-            //userAnswers.delete(room);
+            userAnswers.delete(room);
         }else{
             userAnswers.set(room, sol);
         }
@@ -207,7 +208,7 @@ async function result(sol1, sol2, room){
     for (const que in sol1){
         let uR = sol1[que];
         gId1 = uR.googleId;
-        if (uR.solution === uR.userAns){
+        if (uR.solution === uR.answer){
             crct1++;
         }
     }
@@ -215,7 +216,7 @@ async function result(sol1, sol2, room){
     for (const que in sol2){
         let uR2 = sol2[que];
         gId2 = uR2.googleId;
-        if (uR2.solution === uR2.userAns){
+        if (uR2.solution === uR2.answer){
             crct2++;
         }
     }
@@ -223,7 +224,7 @@ async function result(sol1, sol2, room){
     let winId = crct1 >= crct2 ? gId1 : gId2;
     let loseId = crct1 >= crct2 ? gId2 : gId1;
 
-    console.log(winId);
+    //console.log(winId);
     
 
     let winData = currentUsers.get(winId);
@@ -232,19 +233,34 @@ async function result(sol1, sol2, room){
     let winUserCoins = winData["userCoins"];
     let loseUserTickets = winData["userTickets"];*/
 
+    let resRoom;
 
-    let resRoom = {
-        "winId" : winId,
-        "loseId" : loseId,
-        "winRes" : sol1,
-        "loseRes" : sol2
+    if (crct1 >= crct2) {
+        resRoom = {
+            "winId" : winId,
+            "winScore" : crct1,
+            "loseScore" : crct2,
+            "loseId" : loseId,
+            "winRes" : sol1,
+            "loseRes" : sol2
+        }
+    }else{
+        resRoom = {
+            "winId" : winId,
+            "winScore" : crct2,
+            "loseScore" : crct1,
+            "loseId" : loseId,
+            "winRes" : sol1,
+            "loseRes" : sol2
+        }
     }
+    
 
     //console.log(winUserCoins);
     //console.log(loseUserTickets);
 
-    console.log(winData);
-    console.log(loseData);
+    //console.log(winData);
+    //console.log(loseData);
 
     //await user_game_win(winId, winUserCoins,winUserTickets);
     //await user_game_lost(loseId, loseUserTickets);
