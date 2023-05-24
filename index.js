@@ -19,6 +19,7 @@ app.get('/', (req, res) => {
 const appversion = "2.5";
 const serverWork = false;
 let isPairingUser = false;
+const perGameTime = 6; 
 
 const waitingUsers = new Map();
 const usersInGame = new Map();
@@ -130,13 +131,8 @@ socket.on('check_update', (info)=>{
         if (userAnswers.has(room)){
             let prevsol = userAnswers.get(room);
             let res = await result(sol, prevsol, room);
-            console.log(`final`);
-            console.log(prevsol);
-            console.log("result generated");
             userAnswers.delete(room);
         }else{
-            console.log(`initial`);
-            console.log(sol);
             userAnswers.set(room, sol);
         }
 
@@ -213,7 +209,7 @@ async function result(sol1, sol2, room){
         let uR = sol1[que];
         gId1 = uR.googleId;
         if (uR.solution === uR.answer){
-            crct1++;
+            crct1 = crct1 + (perGameTime - (ur.time/10))*15;
         }
     }
 
@@ -221,21 +217,22 @@ async function result(sol1, sol2, room){
         let uR2 = sol2[que];
         gId2 = uR2.googleId;
         if (uR2.solution === uR2.answer){
-            crct2++;
+            crct2 = crct2 + (perGameTime - (ur.time/10))*15;
         }
     }
 
     let winId = crct1 >= crct2 ? gId1 : gId2;
     let loseId = crct1 >= crct2 ? gId2 : gId1;
 
-    //console.log(winId);
     
-
     let winData = currentUsers.get(winId);
     let loseData = currentUsers.get(loseId);
     /*let winUserTickets = winData["userTickets"];
     let winUserCoins = winData["userCoins"];
     let loseUserTickets = winData["userTickets"];*/
+
+    console.log(`winner is : ${winData["userName"]} and score is : ${crct1}`);
+    console.log(`looser is : ${loseData["userName"]} and score is : ${crct2}`);
 
     let resRoom;
 
