@@ -130,9 +130,13 @@ socket.on('check_update', (info)=>{
         if (userAnswers.has(room)){
             let prevsol = userAnswers.get(room);
             let res = await result(sol, prevsol, room);
+            console.log(`final`);
+            console.log(prevsol);
             console.log("result generated");
             userAnswers.delete(room);
         }else{
+            console.log(`initial`);
+            console.log(sol);
             userAnswers.set(room, sol);
         }
 
