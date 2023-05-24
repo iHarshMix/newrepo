@@ -209,7 +209,7 @@ async function result(sol1, sol2, room){
         let uR = sol1[que];
         gId1 = uR.googleId;
         if (uR.solution === uR.answer){
-            crct1 = crct1 + (perGameTime - (ur.time/10))*15;
+            crct1 = crct1 + (perGameTime - (uR.time/10))*15;
         }
     }
 
@@ -217,7 +217,7 @@ async function result(sol1, sol2, room){
         let uR2 = sol2[que];
         gId2 = uR2.googleId;
         if (uR2.solution === uR2.answer){
-            crct2 = crct2 + (perGameTime - (ur.time/10))*15;
+            crct2 = crct2 + (perGameTime - (uR2.time/10))*15;
         }
     }
 
