@@ -28,6 +28,18 @@ const currentUsers = new Map();
 const userAnswers = new Map();
 const userResults = new Map();
 
+const gameList = {
+        "0" : {
+            "gameId" : "maths0",
+            "gameName" : "Maths Mania",
+            "gameImage" : "https://ivacusea.sirv.com/GameList/maths_maina_banner.png"
+        },
+        "1" : {
+            "gameId" : "maths1",
+            "gameName" : "Dimsco Deewane",
+            "gameImage" : "https://ivacusea.sirv.com/GameList/maths_maina_banner.png"
+    }
+};
 
 
 io.on('connection', (socket) => {
@@ -50,17 +62,18 @@ socket.on('check_update', (info)=>{
         
         if ( currentUsers.has(data.googleId) ) {
             console.log(`user already in the room`);
-            socket.emit('user_created', { "userData" : getUserData(data.googleId) , "isNewUser" : false });
+            socket.emit('user_created', { "userData" : getUserData(data.googleId) , "gameList" : gameList,"isNewUser" : false });
             return;
         }
 
+        
         //console.log("here i am");
         const user = create_user(data.googleId, data.name);
         user.then(([userData, isNewUser])=> { 
             //currentUsers.set(socket.id, userData); 
             currentUsers.set(data.googleId, userData);
             socketToId.set(socket.id, data.googleId);
-            socket.emit('user_created', { "userData" : getUserData(data.googleId) , "isNewUser" : isNewUser });
+            socket.emit('userConnected', { "userData" : getUserData(data.googleId) , "gameList" : gameList, "isNewUser" : isNewUser });
 
         }).catch(err => { throw err; })
         
