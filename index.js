@@ -61,7 +61,7 @@ socket.on('check_update', (info)=>{
         
         if ( currentUsers.has(data.googleId) ) {
             console.log(`user already in the room`);
-            socket.emit('user_created', { "userData" : getUserData(data.googleId) , "gameList" : gameList,"isNewUser" : false });
+            socket.emit('userConnected', { "userData" : getUserData(data.googleId) , "gameList" : gameList,"isNewUser" : false });
             return;
         }
 
