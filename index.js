@@ -41,6 +41,7 @@ const gameList = {
     }
 };
 
+console.log(gameList);
 
 io.on('connection', (socket) => {
 
