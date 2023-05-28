@@ -28,20 +28,18 @@ const currentUsers = new Map();
 const userAnswers = new Map();
 const userResults = new Map();
 
-const gameList = {
-        "0" : {
+const gameList = [];
+gameList.push({
             "gameId" : "maths0",
             "gameName" : "Maths Mania",
             "gameImage" : "https://ivacusea.sirv.com/GameList/maths_maina_banner.png"
-        },
-        "1" : {
+    });
+gameList.push({
             "gameId" : "maths1",
-            "gameName" : "Dimsco Deewane",
+            "gameName" : "Decenet Mania",
             "gameImage" : "https://ivacusea.sirv.com/GameList/maths_maina_banner.png"
-    }
-};
-
-console.log(gameList);
+    });
+//console.log(gameList);
 
 io.on('connection', (socket) => {
 
